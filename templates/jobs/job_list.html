@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Job Openings — NextCareer{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --primary: #0b66c3;
+    --accent: #06b6d4;
+    --bg: #f9fafb;
+    --card: #ffffff;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --radius: 10px;
+    --shadow: 0 6px 18px rgba(0,0,0,0.06);
+    --border: #e5e7eb;
+  }
+
+  body {
+    background: var(--bg);
+    font-family: Inter, system-ui, sans-serif;
+  }
+
+  .jobs-container {
+    max-width: 1000px;
+    margin: 30px auto;
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 24px 28px;
+  }
+
+  .jobs-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 12px;
+  }
+
+  .jobs-header h2 {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  .search-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .search-row input[type="text"] {
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.95rem;
+    min-width: 240px;
+    transition: box-shadow 0.2s;
+  }
+
+  .search-row input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(11, 102, 195, 0.15);
+  }
+
+  .search-row button {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    font-weight: 600;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+  }
+
+  .search-row button:hover {
+    background: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .search-row a.clear-btn {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    padding: 10px;
+    border-radius: var(--radius);
+  }
+
+  .search-row a.clear-btn:hover {
+    text-decoration: underline;
+  }
+
+  .jobs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .job-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+    padding: 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .job-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.06);
+  }
+
+  .job-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .job-title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  .job-title a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .job-title a:hover {
+    text-decoration: underline;
+  }
+
+  .job-sub {
+    margin: 4px 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+  }
+
+  .job-desc {
+    color: var(--text);
+    font-size: 0.95rem;
+    margin-top: 6px;
+    max-height: 50px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .job-meta {
+    width: 180px;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+
+  .salary {
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  .muted {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+
+  .view-btn {
+    display: inline-block;
+    padding: 8px 12px;
+    border-radius: var(--radius);
+    background: var(--primary);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: background 0.3s, transform 0.2s;
+  }
+
+  .view-btn:hover {
+    background: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .no-jobs {
+    text-align: center;
+    color: var(--muted);
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    font-size: 1rem;
+  }
+
+  @media (max-width: 768px) {
+    .job-card {
+      flex-direction: column;
+    }
+    .job-meta {
+      width: auto;
+      align-items: flex-start;
+      text-align: left;
+    }
+    .jobs-container {
+      padding: 18px;
+    }
+  }
+</style>
+
+<div class="jobs-container">
+  <div class="jobs-header">
+    <h2>Available Job Openings</h2>
+
+    <form method="get" class="search-row" action="{% url 'job_list' %}">
+      <input type="text" name="q" placeholder="Search title, company, or description" value="{{ q|default_if_none:'' }}">
+      <button type="submit">Search</button>
+      <a class="clear-btn" href="{% url 'job_list' %}">Clear</a>
+    </form>
+  </div>
+
+  <div class="jobs-list">
+    {% if jobs %}
+      {% for job in jobs %}
+        <article class="job-card" aria-labelledby="job-{{ job.id }}-title">
+          <div class="job-info">
+            <h3 id="job-{{ job.id }}-title" class="job-title">
+              <a href="{% url 'job_detail' job.id %}">{{ job.title }}</a>
+            </h3>
+
+            <div class="job-sub">
+              <strong>{{ job.company }}</strong> • {{ job.location }}
+              {% if job.is_remote %} • Remote{% endif %}
+            </div>
+
+            <p class="job-desc">{{ job.description|truncatechars:200 }}</p>
+          </div>
+
+          <div class="job-meta">
+            <div class="salary">{{ job.salary|default_if_none:"Not disclosed" }}</div>
+            <div class="muted">Posted {{ job.created_at|date:"Y-m-d" }}</div>
+            <a class="view-btn" href="{% url 'job_detail' job.id %}">View Details</a>
+          </div>
+        </article>
+      {% endfor %}
+    {% else %}
+      <div class="no-jobs">
+        No jobs found. Try clearing filters or adjusting your search.
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

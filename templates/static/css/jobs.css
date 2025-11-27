@@ -1,0 +1,25 @@
+/* jobs.css — job list, job card, job detail, skill badges */
+
+.jobs-container{max-width:1100px;margin:20px auto;padding:6px}
+.jobs-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.search-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.search-row input[type="text"]{padding:8px 10px;border:1px solid #dcdcdc;border-radius:8px;width:220px}
+.search-row button{padding:8px 12px;border-radius:8px;border:0;background:var(--brand-1);color:#fff;font-weight:700;cursor:pointer}
+
+/* job card */
+.jobs-list{display:flex;flex-direction:column;gap:12px}
+.job-card{display:flex;gap:12px;justify-content:space-between;align-items:flex-start;border:1px solid #eef4fb;padding:12px;border-radius:10px;background:#fff;box-shadow:0 1px 4px rgba(10,30,80,0.03)}
+.job-info{flex:1;min-width:0}
+.job-title{margin:0 0 6px 0;font-size:1.05rem;font-weight:700;color:var(--brand-1)}
+.job-sub{margin:0;color:var(--muted);font-size:0.95rem}
+.job-desc{margin-top:8px;color:#555;font-size:0.95rem;max-height:64px;overflow:hidden;text-overflow:ellipsis}
+.job-meta{text-align:right;width:170px;display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+
+/* skill badge */
+.skill-badge{display:inline-block;margin:4px 6px 0 0;padding:6px 10px;background:linear-gradient(180deg,#eef6ff,#f7fbff);color:var(--brand-1);border-radius:999px;font-size:0.85rem}
+
+/* job detail tweaks */
+.job-detail .skill-list{margin-top:8px;display:flex;flex-wrap:wrap;gap:8px}
+
+/* small responsive */
+@media(max-width:820px){.job-card{flex-direction:column}.job-meta{width:auto;text-align:left;align-items:flex-start}.search-row input[type="text"]{width:100%;max-width:420px}}

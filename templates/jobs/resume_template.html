@@ -1,0 +1,238 @@
+{% load static %}
+<div class="resume-container">
+  <header class="resume-header">
+    <div class="header-left">
+      {% if resume.data.personal.full_name %}
+        <h1 class="name">{{ resume.data.personal.full_name }}</h1>
+      {% else %}
+        <h1 class="name">Unnamed</h1>
+      {% endif %}
+      {% if resume.data.personal.headline %}
+        <p class="headline">{{ resume.data.personal.headline }}</p>
+      {% endif %}
+    </div>
+
+    <div class="header-right contact">
+      {% if resume.data.personal.location %}<div>{{ resume.data.personal.location }}</div>{% endif %}
+      {% if resume.data.personal.email %}<div>{{ resume.data.personal.email }}</div>{% endif %}
+      {% if resume.data.personal.phone %}<div>{{ resume.data.personal.phone }}</div>{% endif %}
+      {% if resume.data.personal.linkedin %}
+        <div><a href="{{ resume.data.personal.linkedin }}" target="_blank">{{ resume.data.personal.linkedin }}</a></div>
+      {% endif %}
+    </div>
+  </header>
+
+  <main class="resume-main">
+    <section class="main-left">
+      {% if resume.data.summary %}
+        <div class="section">
+          <h2>Professional Summary</h2>
+          <p class="r-text">{{ resume.data.summary|linebreaksbr }}</p>
+        </div>
+      {% endif %}
+
+      {% if resume.data.experience and resume.data.experience|length > 0 %}
+        <div class="section">
+          <h2>Experience</h2>
+          {% for ex in resume.data.experience %}
+            {% if ex.title or ex.company or ex.description %}
+              <div class="item">
+                {% if ex.title %}
+                  <div class="item-title">{{ ex.title }}</div>
+                {% endif %}
+                {% if ex.company or ex.duration %}
+                  <div class="item-sub">{{ ex.company }}{% if ex.company and ex.duration %} • {% endif %}{{ ex.duration }}</div>
+                {% endif %}
+                {% if ex.description %}
+                  <p class="r-text">{{ ex.description|linebreaksbr }}</p>
+                {% endif %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% if resume.data.projects and resume.data.projects|length > 0 %}
+        <div class="section">
+          <h2>Projects</h2>
+          {% for p in resume.data.projects %}
+            {% if p.title or p.description %}
+              <div class="item">
+                {% if p.title %}
+                  <div class="item-title">{{ p.title }}</div>
+                {% endif %}
+                {% if p.tech or p.duration %}
+                  <div class="item-sub">{{ p.tech }}{% if p.tech and p.duration %} • {% endif %}{{ p.duration }}</div>
+                {% endif %}
+                {% if p.description %}
+                  <p class="r-text">{{ p.description|linebreaksbr }}</p>
+                {% endif %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+    </section>
+
+    <aside class="main-right">
+      {% if resume.data.education and resume.data.education|length > 0 %}
+        <div class="section">
+          <h2>Education</h2>
+          {% for e in resume.data.education %}
+            {% if e.school or e.degree %}
+              <div class="item">
+                <strong>{{ e.school }}</strong>
+                {% if e.degree %}<div>{{ e.degree }}</div>{% endif %}
+                {% if e.duration %}<div class="muted">{{ e.duration }}</div>{% endif %}
+                {% if e.details %}<p class="r-text">{{ e.details|linebreaksbr }}</p>{% endif %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% if resume.data.skills and resume.data.skills|length > 0 %}
+        <div class="section">
+          <h2>Skills</h2>
+          <div class="skills">
+            {% for s in resume.data.skills %}
+              <span class="skill-pill">{{ s }}</span>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if resume.data.achievements %}
+        <div class="section">
+          <h2>Achievements</h2>
+          <p class="r-text">{{ resume.data.achievements|linebreaksbr }}</p>
+        </div>
+      {% endif %}
+    </aside>
+  </main>
+
+  <footer class="resume-footer">
+    <p>Generated on {% now "Y-m-d" %} by <strong>Nexty</strong></p>
+  </footer>
+</div>
+
+<style>
+  :root {
+    --primary: #0b66c3;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --border: #e5e7eb;
+    --light-bg: #f9fafb;
+  }
+
+  .resume-container {
+    font-family: "Inter", system-ui, sans-serif;
+    color: var(--text);
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+  }
+
+  .resume-header {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+  }
+
+  .name {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  .headline {
+    color: var(--muted);
+    font-size: 1rem;
+    margin-top: 4px;
+  }
+
+  .contact {
+    text-align: right;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--muted);
+  }
+
+  .resume-main {
+    display: grid;
+    grid-template-columns: 1fr 0.8fr;
+    gap: 24px;
+  }
+
+  .section {
+    margin-bottom: 20px;
+  }
+
+  .section h2 {
+    font-size: 1.05rem;
+    color: var(--primary);
+    font-weight: 700;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 6px;
+    margin-bottom: 10px;
+  }
+
+  .item {
+    margin-bottom: 10px;
+  }
+
+  .item-title {
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .item-sub {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin: 3px 0;
+  }
+
+  .r-text {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .skill-pill {
+    background: #eef6ff;
+    color: var(--primary);
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .resume-footer {
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+    margin-top: 25px;
+  }
+
+  @media (max-width: 820px) {
+    .resume-main {
+      grid-template-columns: 1fr;
+    }
+    .contact {
+      text-align: left;
+      margin-top: 10px;
+    }
+  }
+</style>

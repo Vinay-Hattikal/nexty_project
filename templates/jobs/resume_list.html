@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load tz %}
+{% block title %}My Resumes — Nexty{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --primary: #0b66c3;
+    --accent: #06b6d4;
+    --bg: #f9fafb;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --radius: 12px;
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  }
+
+  body {
+    background: var(--bg);
+    font-family: Inter, system-ui, sans-serif;
+  }
+
+  .resume-container {
+    max-width: 1050px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+
+  .resume-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .resume-header h2 {
+    color: var(--primary);
+    font-size: 1.8rem;
+    font-weight: 700;
+  }
+
+  .new-resume-link {
+    text-decoration: none;
+    background: var(--primary);
+    color: #fff;
+    padding: 10px 16px;
+    border-radius: var(--radius);
+    font-weight: 600;
+    box-shadow: var(--shadow);
+    transition: 0.3s;
+  }
+  .new-resume-link:hover {
+    background: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .resume-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+    box-shadow: var(--shadow);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .resume-table th {
+    text-align: left;
+    padding: 14px;
+    background: #eef5ff;
+    color: var(--primary);
+    font-size: 1rem;
+  }
+
+  .resume-table td {
+    padding: 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+    font-size: 0.95rem;
+  }
+
+  .resume-table tr:last-child td {
+    border-bottom: none;
+  }
+
+  .resume-table a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .resume-table a:hover {
+    text-decoration: underline;
+  }
+
+  .resume-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  select.template-select {
+    padding: 6px 8px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+
+  button,
+  .resume-actions a button {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 8px 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+  }
+
+  button:hover,
+  .resume-actions a button:hover {
+    background: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .empty-state {
+    text-align: center;
+    color: var(--muted);
+    background: var(--card);
+    padding: 40px 20px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  .empty-state a {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .empty-state a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 768px) {
+    .resume-table th, .resume-table td {
+      padding: 10px;
+      font-size: 0.9rem;
+    }
+    .resume-actions { flex-direction: column; align-items: flex-start; }
+    select.template-select { width: 100%; }
+  }
+</style>
+
+<div class="resume-container">
+  <div class="resume-header">
+    <h2>Your Resumes</h2>
+    <a href="{% url 'create_resume' %}" class="new-resume-link">+ Create New Resume</a>
+  </div>
+
+  {% if resumes %}
+  <table class="resume-table">
+    <thead>
+      <tr>
+        <th>Title</th>
+        <th>Last Updated</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for r in resumes %}
+      <tr>
+        <td><a href="{% url 'resume_detail' r.id %}">{{ r.title }}</a></td>
+        <td>
+          {% if r.updated_at %}
+            {# Convert to India time and format: Full weekday, DD-MM-YYYY hh:mm AM/PM #}
+            {% timezone "Asia/Kolkata" %}
+              {{ r.updated_at|date:"l, d-m-Y h:i A" }}
+            {% endtimezone %}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+        <td>
+          <div class="resume-actions">
+            <label>
+              <select class="template-select" data-resume-id="{{ r.id }}">
+                <option value="modern" selected>Modern</option>
+                <option value="classic">Classic</option>
+                <option value="minimal">Minimal</option>
+              </select>
+            </label>
+            <button class="preview-btn" data-resume-id="{{ r.id }}">Preview</button>
+            <button class="download-btn" data-resume-id="{{ r.id }}">Download</button>
+            <a href="{% url 'edit_resume' r.id %}">
+              <button>Edit</button>
+            </a>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <p>No resumes yet. <a href="{% url 'create_resume' %}">Create one now</a>.</p>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+(function(){
+  const qsa = s => Array.from(document.querySelectorAll(s));
+
+  qsa('.preview-btn').forEach(btn => {
+    btn.addEventListener('click', evt => {
+      const id = btn.getAttribute('data-resume-id');
+      const sel = document.querySelector('.template-select[data-resume-id="'+id+'"]');
+      const template = sel ? sel.value : 'modern';
+      const url = "{% url 'resume_preview' 0 %}".replace('/0/', '/' + id + '/') + '?template=' + encodeURIComponent(template);
+      window.open(url, '_blank');
+    });
+  });
+
+  qsa('.download-btn').forEach(btn => {
+    btn.addEventListener('click', evt => {
+      const id = btn.getAttribute('data-resume-id');
+      const sel = document.querySelector('.template-select[data-resume-id="'+id+'"]');
+      const template = sel ? sel.value : 'modern';
+      const url = "{% url 'resume_download' 0 %}".replace('/0/', '/' + id + '/') + '?template=' + encodeURIComponent(template);
+      window.location.href = url;
+    });
+  });
+})();
+</script>
+{% endblock %}

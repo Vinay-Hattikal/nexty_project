@@ -1,0 +1,20 @@
+[
+  {
+    "role": "python developer",
+    "category": "pyq",
+    "question": "Explain the Global Interpreter Lock (GIL) in Python.",
+    "answer": "The GIL is a mutex that prevents multiple native threads from executing Python bytecodes simultaneously...",
+    "tags": "python,gil,concurrency",
+    "source": "General PYQ",
+    "difficulty": "medium"
+  },
+  {
+    "role": "frontend developer",
+    "category": "must",
+    "question": "What CSS property creates a stacking context?",
+    "answer": "Properties like position (with z-index), opacity < 1, transform, filter, and others can create stacking contexts.",
+    "tags": "css,frontend,stacking",
+    "source": "Interview Notes",
+    "difficulty": "easy"
+  }
+]

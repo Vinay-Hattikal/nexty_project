@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ job.title }} — NextCareer{% endblock %}
+{% block content %}
+<style>
+  :root {
+    --primary: #0b66c3;
+    --accent: #06b6d4;
+    --danger: #dc2626;
+    --success: #16a34a;
+    --bg: #f9fafb;
+    --card: #ffffff;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --radius: 10px;
+    --shadow: 0 6px 18px rgba(0,0,0,0.06);
+  }
+
+  body {
+    background: var(--bg);
+    font-family: Inter, system-ui, sans-serif;
+  }
+
+  main {
+    max-width: 900px;
+    margin: 30px auto;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 32px;
+    box-shadow: var(--shadow);
+    color: var(--text);
+  }
+
+  h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 0.25rem;
+  }
+
+  h3, h4 {
+    color: var(--primary);
+    font-weight: 600;
+    margin-top: 1.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .company-location {
+    color: var(--muted);
+    font-size: 1.05rem;
+    margin-bottom: 1rem;
+  }
+
+  .job-meta {
+    background: var(--bg);
+    border-radius: var(--radius);
+    padding: 16px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  }
+
+  .job-meta strong {
+    color: var(--text);
+  }
+
+  hr {
+    border: none;
+    height: 1px;
+    background: #e5e7eb;
+    margin: 1.75rem 0;
+  }
+
+  .description {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  .skill-badge {
+    display: inline-block;
+    background: #e0f2fe;
+    color: var(--primary);
+    font-weight: 500;
+    padding: 6px 12px;
+    margin: 4px 6px 4px 0;
+    border-radius: 9999px;
+    font-size: 0.9rem;
+  }
+
+  .actions {
+    margin-top: 1.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  button {
+    border: none;
+    border-radius: var(--radius);
+    padding: 10px 16px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+  }
+
+  button:hover {
+    transform: translateY(-2px);
+  }
+
+  .btn-primary {
+    background: var(--primary);
+    color: white;
+  }
+  .btn-primary:hover {
+    background: var(--accent);
+  }
+
+  .btn-secondary {
+    background: #f3f4f6;
+    color: var(--text);
+  }
+  .btn-secondary:hover {
+    background: #e5e7eb;
+  }
+
+  .btn-danger {
+    background: var(--danger);
+    color: white;
+  }
+  .btn-danger:hover {
+    background: #b91c1c;
+  }
+
+  .closed {
+    color: var(--danger);
+    font-weight: 600;
+  }
+
+  @media (max-width: 640px) {
+    main { padding: 20px; }
+    h2 { font-size: 1.4rem; }
+  }
+</style>
+
+<main>
+  <h2>{{ job.title }}</h2>
+  <div class="company-location">
+    <strong>{{ job.company }}</strong> — {{ job.location }}
+    {% if job.is_remote %}<span style="color: var(--success); font-weight: 600;">(Remote)</span>{% endif %}
+  </div>
+
+  <div class="job-meta">
+    <p><strong>💰 Salary:</strong> {{ job.salary|default:"Not disclosed" }}</p>
+    <p><strong>📅 Posted:</strong> {{ job.created_at|date:"Y-m-d" }}</p>
+    <p><strong>⏰ Expiry:</strong> {{ job.expiry_date|default:"—" }}</p>
+  </div>
+
+  <hr>
+
+  <h3>Job Description</h3>
+  <div class="description">{{ job.description|linebreaks }}</div>
+
+  <h4>Required Skills</h4>
+  <div>
+    {% for s in job.required_skills %}
+      <span class="skill-badge">{{ s }}</span>
+    {% empty %}
+      <small class="muted">No specific skills listed.</small>
+    {% endfor %}
+  </div>
+
+  <div class="actions">
+    {% if is_open %}
+      {% if not user.is_authenticated %}
+        <a href="{% url 'login' %}?next={% url 'job_apply' job.id %}">
+          <button class="btn-primary">Login to Apply</button>
+        </a>
+      {% elif user.is_authenticated %}
+        {% if not user.role or user.role != 'hr' %}
+          <a href="{% url 'job_apply' job.id %}">
+            <button class="btn-primary">Apply Now</button>
+          </a>
+        {% else %}
+          <div class="muted">You are logged in as HR — students can apply for this job.</div>
+        {% endif %}
+      {% endif %}
+    {% else %}
+      <div class="closed">This job is closed.</div>
+    {% endif %}
+  </div>
+
+  {% if user.is_authenticated and user.role == 'hr' and job.hr == user %}
+    <div class="actions">
+      <a href="{% url 'job_edit' job.id %}">
+        <button class="btn-secondary">Edit</button>
+      </a>
+      <form method="post" action="{% url 'job_delete' job.id %}">
+        {% csrf_token %}
+        <button type="submit" class="btn-danger">Delete</button>
+      </form>
+    </div>
+  {% endif %}
+</main>
+{% endblock %}

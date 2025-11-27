@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}HR Dashboard — Nexty{% endblock %}
+
+{% block content %}
+<style>
+  /* Modern HR Dashboard CSS — replace existing styles with this block
+     Only presentation changes — no JS/back-end logic modified.
+  */
+
+  :root{
+    --primary: #0b66c3;
+    --accent: #06b6d4;
+    --danger: #dc2626;
+    --success: #16a34a;
+    --bg: #f7f9fc;
+    --card: #ffffff;
+    --border: #e6eaf0;
+    --muted: #6b7280;
+    --text-strong: #0f1724;
+    --radius: 12px;
+    --shadow-1: 0 6px 18px rgba(8,40,80,0.06);
+    --shadow-2: 0 18px 40px rgba(8,40,80,0.08);
+    --glass: rgba(11,102,195,0.06);
+    --container-max: 1100px;
+    --gutter: 18px;
+    --transition: 200ms cubic-bezier(.2,.9,.3,1);
+  }
+
+  /* Respect user reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+
+  /* Base */
+  html,body { height:100%; margin:0; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background:var(--bg); color:var(--text-strong); -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; }
+  img { max-width:100%; height:auto; display:block; }
+  a { color:inherit; text-decoration:none; }
+  button { font-family: inherit; cursor: pointer; }
+
+  /* Container */
+  main, .dashboard {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: var(--container-max);
+    margin: 28px auto;
+    padding: 16px;
+  }
+
+  /* Card wrapper (keeps your main panel feel) */
+  main, .panel {
+    background: linear-gradient(180deg, var(--card), #fbfdff);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-1);
+    border: 1px solid var(--border);
+  }
+
+  /* Heading */
+  h2 { font-size: 1.6rem; margin: 0 0 12px 0; color: var(--primary); font-weight: 800; text-align:center; padding-top:12px; }
+  h3 { font-size: 1.05rem; margin: 0 0 12px 0; color: var(--text-strong); font-weight: 800; }
+
+  /* Top actions row */
+  .action-row { display:flex; align-items:center; justify-content:center; gap:12px; padding:18px; }
+  .action-row a { text-decoration:none; }
+  .action-row button {
+    background: linear-gradient(90deg, var(--primary), #6f47d4);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-weight: 700;
+    box-shadow: 0 12px 28px rgba(11,102,195,0.10);
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .action-row button:hover { transform: translateY(-3px); box-shadow: var(--shadow-2); }
+  .action-row button:active { transform: translateY(-1px); }
+
+  /* Job list layout */
+  .job-list { display:flex; flex-direction:column; gap:14px; padding: 18px; }
+  .job-card {
+    display:flex;
+    gap:16px;
+    align-items:flex-start;
+    padding:16px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #fff, #fcfdff);
+    border: 1px solid rgba(0,0,0,0.03);
+    box-shadow: 0 8px 20px rgba(12,18,30,0.03);
+    transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .job-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-2); }
+
+  .job-top { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; width:100%; flex-wrap:wrap; }
+  .job-left { flex:1; min-width:0; }
+  .job-title { display:block; font-size:1.05rem; font-weight:800; color:var(--primary); margin-bottom:6px; }
+  .job-meta { color:var(--muted); font-size:0.95rem; margin-bottom:8px; display:block; }
+  .job-dates { color:var(--muted); font-size:0.9rem; text-align:right; min-width:140px; }
+
+  /* Tags */
+  .job-tags { display:flex; gap:8px; flex-wrap:wrap; margin-top:6px; }
+  .tag { background:#f3f8ff; color:var(--primary); padding:6px 10px; border-radius:999px; font-weight:700; font-size:.82rem; border:1px solid rgba(11,102,195,0.05); }
+
+  /* Actions */
+  .job-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .job-actions button, .job-actions .btn {
+    border:0; border-radius:10px; padding:8px 12px; font-weight:700; transition: transform var(--transition), box-shadow var(--transition);
+  }
+  .view-btn { background: linear-gradient(90deg,var(--primary),#6f47d4); color:#fff; box-shadow: 0 10px 28px rgba(11,102,195,0.08); }
+  .edit-btn { background:#fff; color:var(--primary); border:1px solid rgba(11,102,195,0.06); }
+  .delete-btn { background:#fff5f6; color:var(--danger); border:1px solid rgba(220,38,38,0.08); }
+
+  .job-actions button:hover { transform: translateY(-3px); }
+
+  /* No-jobs / empty state */
+  .no-jobs { padding:18px; text-align:center; color:var(--muted); background: linear-gradient(180deg,#fff,#fcfdff); border-radius:10px; border:1px dashed var(--border); margin:18px; }
+
+  .no-jobs a { color:var(--primary); font-weight:700; text-decoration:none; }
+  .no-jobs a:hover { text-decoration:underline; }
+
+  /* Responsive tweaks */
+  @media (max-width: 880px) {
+    .job-dates { text-align:left; min-width:0; }
+    .job-card { flex-direction:column; align-items:stretch; }
+    .job-top { flex-direction:column; align-items:stretch; }
+    .job-actions { justify-content:flex-start; }
+    .action-row { padding:12px; flex-direction:column; }
+  }
+
+  @media (max-width: 520px) {
+    main, .dashboard { padding:12px; margin:16px; }
+    .job-card { padding:12px; gap:10px; }
+    .job-title { font-size:1rem; }
+  }
+
+  /* Focus styles for accessibility */
+  a:focus, button:focus, input:focus {
+    outline: 3px solid rgba(11,102,195,0.12);
+    outline-offset: 3px;
+    border-radius:8px;
+  }
+
+  /* Small utilities */
+  .muted { color:var(--muted); }
+  .small { font-size:0.9rem; color:var(--muted); }
+</style>
+
+
+<main>
+  <h2>HR Dashboard</h2>
+
+  <div class="action-row">
+    <a href="{% url 'job_create' %}">
+      <button>＋ Post Job</button>
+    </a>
+  </div>
+
+  <h3>Your Job Postings</h3>
+
+  {% if jobs %}
+    <div class="job-list">
+      {% for job in jobs %}
+        <div class="job-card">
+          <div class="job-top">
+            <div>
+              <a href="{% url 'job_detail' job.id %}" class="job-title">{{ job.title }}</a>
+              <div class="job-meta">{{ job.company }} • {{ job.location }}{% if job.is_remote %} • Remote{% endif %}</div>
+            </div>
+            <div class="job-dates">
+              <div>Posted: {{ job.created_at|date:"Y-m-d" }}</div>
+              <div>Expiry: {{ job.expiry_date|default:"—" }}</div>
+            </div>
+          </div>
+
+          <div class="job-actions">
+            <a href="{% url 'hr_applications_for_job' job.id %}">
+              <button class="view-btn">View Applicants ({{ job.applications.count }})</button>
+            </a>
+            <a href="{% url 'job_edit' job.id %}">
+              <button class="edit-btn">Edit</button>
+            </a>
+
+            <form method="post" action="{% url 'job_delete' job.id %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="delete-btn" onclick="return confirm('Delete this job?');">Delete</button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="no-jobs">
+      You haven’t posted any jobs yet.  
+      <a href="{% url 'job_create' %}">Post your first job</a>
+    </div>
+  {% endif %}
+</main>
+{% endblock %}

@@ -1,0 +1,14 @@
+Hi {{ student_name }},
+
+Thank you for applying for {{ job_title }}.
+
+We regret to inform you that your application has not been progressed further at this time.
+
+{% if message %}
+Reason: {{ message }}
+{% endif %}
+
+We wish you the best in your job search.
+
+Regards,
+{{ hr_name }}

@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Question {{ question.id }}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    @page { margin: 24mm 16mm; }
+    html, body { height: 100%; margin: 0; padding: 0; color: #0f172a; background: #fff; }
+    body { font-family: "DejaVu Sans", "Helvetica", "Arial", sans-serif; font-size: 12pt; line-height: 1.45; }
+    h1 { margin: 0 0 6px 0; font-size: 16pt; font-weight: 700; color: #0b1220; }
+    .meta { color: #4b5563; font-size: 10.5pt; margin-bottom: 12px; }
+    .container { max-width: 720px; margin: 0 auto; padding: 6px 0; }
+    .question { margin: 12px 0; padding: 10px 12px; border-left: 4px solid #3c7be0; background: #fbfdff; border-radius: 4px; }
+    .question strong { margin-right: 6px; color: #0b1220; }
+    .answer { margin-top: 18px; padding: 12px; border: 1px solid #e6eefc; background: #ffffff; border-radius: 6px; }
+    .answer strong { display:block; margin-bottom:6px; color:#0b1220; font-weight:700; }
+    .tags { margin-top: 14px; font-size: 10pt; color: #374151; }
+    .tag { display: inline-block; background: #eef5ff; color: #1956d6; border-radius: 999px; padding: 4px 8px; margin: 2px 6px 2px 0; font-size: 9.5pt; }
+    .footer { margin-top: 18px; font-size: 9.5pt; color: #6b7280; border-top: 1px dashed #e6eefc; padding-top: 8px; }
+    code { background: #f8fafc; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 11px; }
+    @media print { a[href]:after { content: " (" attr(href) ")"; font-size: 9pt; color: #9ca3af; } body { -webkit-print-color-adjust: exact; } }
+    @media (max-width:480px) { .container { padding: 0 8px; } h1 { font-size: 14pt; } body { font-size: 11pt; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>{{ question.role|title }} — Question #{{ question.id }}</h1>
+
+    <div class="meta">
+      <span>Category: <strong>{{ question.get_category_display }}</strong></span>
+      &nbsp;|&nbsp;
+      <span>Difficulty: <strong>{{ question.difficulty|default:"N/A" }}</strong></span>
+      {% if question.source %}
+        &nbsp;|&nbsp;
+        <span>Source: <strong>{{ question.source }}</strong></span>
+      {% endif %}
+    </div>
+
+    <div class="question">
+      <strong>Q.</strong>
+      <div>{{ question.question|linebreaksbr }}</div>
+    </div>
+
+    {% if include_answer and question.answer %}
+      <div class="answer">
+        <strong>A.</strong>
+        <div>{{ question.answer|linebreaksbr }}</div>
+      </div>
+    {% else %}
+      <div class="answer">
+        <em>Answer hidden. To include the answer in this PDF, call this URL with <code>?answer=1</code> (if you have permission).</em>
+      </div>
+    {% endif %}
+
+    {# Safe tag rendering: prefer tag_list() if available, otherwise show raw string #}
+    {% if question.tag_list %}
+      <div class="tags">
+        Tags:
+        {% for t in question.tag_list %}
+          <span class="tag">{{ t }}</span>
+        {% endfor %}
+      </div>
+    {% elif question.tags %}
+      <div class="tags">
+        Tags: <strong>{{ question.tags }}</strong>
+      </div>
+    {% endif %}
+
+    <div class="footer">
+      Generated for {{ user.get_full_name|default:user.username }} on {{ now|date:"F j, Y, g:i a" }}.
+      {% if not include_answer %}
+        <div style="margin-top:6px; color:#9ca3af;">Note: this PDF excludes the answer. Use <code>?answer=1</code> to include it (permission required).</div>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>

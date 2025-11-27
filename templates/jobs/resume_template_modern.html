@@ -1,0 +1,168 @@
+{% load static %}
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>{{ resume.title|default:"Resume" }}</title>
+
+  <style>
+    /* One-page Modern — pisa-friendly */
+    @page { size: A4; margin: 12mm 14mm 12mm 14mm; }
+    html,body{margin:0;padding:0;font-family:"DejaVu Sans", "Helvetica", Arial, sans-serif;color:#111;}
+    .page{max-width:760px;margin:0 auto;padding:6px;box-sizing:border-box;font-size:10pt;line-height:1.18;}
+    /* Header */
+    .header{overflow:hidden;margin-bottom:8px;}
+    .name{float:left;font-size:20pt;font-weight:700;color:#0b3d91;margin:0;line-height:1;}
+    .contact{float:right;text-align:right;font-size:9pt;color:#444;margin-top:4px;}
+    .contact span{display:inline-block;margin-left:8px;}
+    .divider{clear:both;border-top:1px solid #e6eefb;margin:8px 0 10px 0;}
+    /* Columns */
+    .left{float:left;width:30%;box-sizing:border-box;padding-right:10px;font-size:9.5pt;}
+    .right{float:right;width:68%;box-sizing:border-box;font-size:10pt;}
+    /* Headings */
+    .section{margin-bottom:8px;clear:both;page-break-inside:avoid;}
+    .section-title{font-weight:700;font-size:10pt;color:#0b3d91;margin:0 0 6px 0;padding-bottom:2px;border-bottom:1px solid #efefef;text-transform:uppercase;letter-spacing:.3px;}
+    .item{margin-bottom:6px;}
+    .title{font-weight:700;font-size:10pt;margin:0 0 3px 0;color:#111;}
+    .sub{font-size:9pt;color:#333;margin:0 0 4px 0;}
+    .meta{font-size:9pt;color:#666;}
+    .para{font-size:9.8pt;margin:2px 0 6px 0;line-height:1.18;white-space:pre-wrap;word-break:break-word;}
+    ul.compact{margin:4px 0 6px 16px;padding:0;line-height:1.14;font-size:9.8pt;}
+    ul.compact li{margin-bottom:4px;}
+    .skills{font-size:9.5pt;color:#333;}
+    .skill-pill{display:inline-block;padding:2px 6px;margin:2px 4px 2px 0;font-size:9pt;border:1px solid #e6e6e6;border-radius:3px;}
+    .row{overflow:hidden;margin-bottom:6px;}
+    .main{float:left;width:74%;box-sizing:border-box;}
+    .datecol{float:right;width:24%;text-align:right;font-size:9pt;color:#666;white-space:nowrap;}
+    .row:after{content:'';display:block;clear:both;}
+    .endclear{clear:both;display:block;height:1px;}
+    .small{font-size:9pt;color:#444;}
+    /* Try to avoid page breaks inside small blocks */
+    .item, .row { page-break-inside: avoid; }
+  </style>
+</head>
+<body>
+{% with rd=data|default:resume.data %}
+  <div class="page">
+    <header class="header">
+      {% if rd.personal and rd.personal.full_name %}
+        <div class="name">{{ rd.personal.full_name }}</div>
+      {% else %}
+        <div class="name">{{ resume.owner.get_full_name|default:resume.owner.username }}</div>
+      {% endif %}
+      <div class="contact">
+        {% if rd.personal and rd.personal.email %}<span>{{ rd.personal.email }}</span>{% endif %}
+        {% if rd.personal and rd.personal.phone %}<span>{{ rd.personal.phone }}</span>{% endif %}
+        {% if rd.personal and rd.personal.linkedin %}<span>{{ rd.personal.linkedin }}</span>{% endif %}
+        {% if rd.personal and rd.personal.location %}<span>{{ rd.personal.location }}</span>{% endif %}
+      </div>
+    </header>
+
+    <div class="divider"></div>
+
+    <div class="left">
+      {% if rd.skills and rd.skills|length > 0 %}
+        <section class="section">
+          <div class="section-title">Skills</div>
+          <div class="item skills">
+            {% for s in rd.skills|slice:":12" %}
+              <span class="skill-pill">{{ s }}</span>
+            {% endfor %}
+            {% if rd.skills|length > 12 %}<div class="small">+{{ rd.skills|length|add:"-12" }} more</div>{% endif %}
+          </div>
+        </section>
+      {% endif %}
+
+      {% if rd.education and rd.education|length > 0 %}
+        <section class="section">
+          <div class="section-title">Education</div>
+          {% for e in rd.education|slice:":2" %}
+            <div class="item">
+              <div class="title">{{ e.school }}</div>
+              <div class="sub">
+                {% if e.degree %}{{ e.degree }}{% endif %}{% if e.details %} • {{ e.details }}{% endif %}
+              </div>
+              <div class="small">{{ e.duration|default:"" }}</div>
+            </div>
+          {% endfor %}
+        </section>
+      {% endif %}
+
+      {% if rd.achievements %}
+        <section class="section">
+          <div class="section-title">Achievements</div>
+          <div class="item para small">{{ rd.achievements|truncatechars:220|linebreaksbr }}</div>
+        </section>
+      {% endif %}
+    </div>
+
+    <div class="right">
+      {% if rd.summary %}
+        <section class="section">
+          <div class="section-title">Profile</div>
+          <div class="item para">{{ rd.summary|truncatechars:420|linebreaksbr }}</div>
+        </section>
+      {% endif %}
+
+      {% if rd.experience and rd.experience|length > 0 %}
+        <section class="section">
+          <div class="section-title">Experience</div>
+          {% for ex in rd.experience|slice:":3" %}
+            <div class="row item">
+              <div class="main">
+                {% if ex.title %}<div class="title">{{ ex.title }}</div>{% endif %}
+                {% if ex.company or ex.location %}<div class="sub">{% if ex.company %}{{ ex.company }}{% endif %}{% if ex.location %} • {{ ex.location }}{% endif %}</div>{% endif %}
+                {# Use description_lines (builder saves bullets as description_lines). Keep description as fallback. #}
+                {% if ex.description_lines %}
+                  <ul class="compact">
+                    {% for b in ex.description_lines|slice:":3" %}
+                      <li>{{ b|truncatechars:120 }}</li>
+                    {% endfor %}
+                  </ul>
+                {% elif ex.description %}
+                  <div class="para">{{ ex.description|truncatechars:300|linebreaksbr }}</div>
+                {% endif %}
+              </div>
+              <div class="datecol">
+                {% if ex.duration %}{{ ex.duration }}{% elif ex.start_date %}{{ ex.start_date }}{% endif %}
+                {% if ex.end_date %} – {{ ex.end_date }}{% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </section>
+      {% endif %}
+
+      {% if rd.projects and rd.projects|length > 0 %}
+        <section class="section">
+          <div class="section-title">Projects</div>
+          {% for p in rd.projects|slice:":3" %}
+            <div class="row item">
+              <div class="main">
+                {% if p.title %}<div class="title">{{ p.title }}</div>{% endif %}
+                {% if p.tech %}<div class="sub">{{ p.tech }}</div>{% endif %}
+                {% if p.description_lines and p.description_lines|length > 0 %}
+                  <ul class="compact">
+                    {% for ln in p.description_lines|slice:":3" %}
+                      <li>{{ ln|truncatechars:140 }}</li>
+                    {% endfor %}
+                  </ul>
+                {% elif p.description %}
+                  <div class="para">{{ p.description|truncatechars:260|linebreaksbr }}</div>
+                {% endif %}
+              </div>
+              <div class="datecol">{% if p.duration %}{{ p.duration }}{% endif %}</div>
+            </div>
+          {% endfor %}
+        </section>
+      {% endif %}
+    </div>
+
+    <div class="endclear"></div>
+
+    <div class="small" style="margin-top:6px;">
+      {% if resume.title %}{{ resume.title }}{% endif %}{% if resume.updated_at %} — Updated: {{ resume.updated_at|date:"Y-m-d" }}{% endif %}
+    </div>
+  </div>
+{% endwith %}
+</body>
+</html>

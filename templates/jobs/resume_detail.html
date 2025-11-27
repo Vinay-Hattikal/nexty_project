@@ -1,0 +1,306 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ resume.title }} — Resume{% endblock %}
+
+{% block content %}
+<style>
+  :root{
+    --primary:#0b66c3;
+    --muted:#6b7280;
+    --bg:#f9fafb;
+    --card:#ffffff;
+    --border:#e5e7eb;
+    --radius:12px;
+    --shadow: 0 8px 24px rgba(0,0,0,0.05);
+    --text:#111827;
+  }
+
+  body{background:var(--bg);font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
+
+  .resume-wrap{
+    max-width:1050px;
+    margin:32px auto;
+    padding:20px;
+  }
+
+  .resume-header{
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    align-items:flex-start;
+    margin-bottom:18px;
+  }
+
+  .resume-title{
+    font-size:1.6rem;
+    color:var(--primary);
+    font-weight:700;
+    margin:0 0 6px 0;
+  }
+
+  .resume-meta{
+    color:var(--muted);
+    font-size:0.95rem;
+  }
+
+  .actions {
+    display:flex;
+    gap:10px;
+    align-items:center;
+    margin-top:6px;
+  }
+
+  .btn {
+    background:var(--primary);
+    color:#fff;
+    border:none;
+    padding:8px 12px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:600;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+  }
+  .btn.secondary {
+    background:#f3f4f6;
+    color:var(--text);
+  }
+  .btn.ghost {
+    background:transparent;
+    color:var(--primary);
+    border:1px solid rgba(11,102,195,0.08);
+  }
+  .btn:hover { transform: translateY(-2px); }
+
+  .resume-card{
+    background:var(--card);
+    border-radius:var(--radius);
+    padding:26px;
+    box-shadow:var(--shadow);
+    border:1px solid var(--border);
+  }
+
+  .person-head{
+    display:flex;
+    gap:20px;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    margin-bottom:18px;
+  }
+
+  .person-left{
+    min-width:0;
+  }
+
+  .name {
+    font-size:1.4rem;
+    font-weight:800;
+    color:var(--text);
+    margin:0;
+  }
+
+  .headline {
+    color:var(--muted);
+    margin-top:6px;
+    font-size:1rem;
+  }
+
+  .contact {
+    color:var(--muted);
+    font-size:0.95rem;
+    margin-top:8px;
+  }
+
+  .section{
+    margin-top:18px;
+  }
+  .section h3{
+    margin:0 0 10px 0;
+    font-size:1.05rem;
+    color:var(--primary);
+    font-weight:700;
+  }
+  .section p, .section div {
+    color:var(--text);
+    line-height:1.6;
+    margin:4px 0;
+    font-size:0.97rem;
+  }
+
+  .grid-2{
+    display:grid;
+    grid-template-columns: 1fr 320px;
+    gap:20px;
+  }
+
+  .skills {
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .skill-pill{
+    background:#eef6ff;
+    color:var(--primary);
+    padding:6px 10px;
+    border-radius:999px;
+    font-weight:600;
+    font-size:0.9rem;
+  }
+
+  .meta-box{
+    background:#fff;
+    border:1px solid var(--border);
+    padding:14px;
+    border-radius:10px;
+  }
+  .meta-box p{margin:6px 0;color:var(--muted)}
+
+  /* responsive */
+  @media (max-width: 880px){
+    .grid-2{grid-template-columns:1fr}
+    .person-head{flex-direction:column;align-items:flex-start}
+    .actions{margin-top:12px}
+  }
+</style>
+
+<div class="resume-wrap" role="main">
+  <header class="resume-header" aria-labelledby="resume-title">
+    <div>
+      <h1 id="resume-title" class="resume-title">{{ resume.title }}</h1>
+      <div class="resume-meta">Owner: {{ resume.owner.username }} — Updated: {{ resume.updated_at|date:"Y-m-d H:i" }}</div>
+    </div>
+
+    <div class="actions" aria-hidden="false">
+      <a class="btn" href="{% url 'resume_download' resume.id %}?template=modern" title="Download PDF (Modern)">
+        ⬇ Download
+      </a>
+      <a class="btn secondary" href="{% url 'resume_download' resume.id %}?template=classic" title="Download PDF (Classic)">
+        ⬇ Classic
+      </a>
+      <button class="btn ghost" id="print-btn" type="button" title="Print resume">🖨 Print</button>
+      <a class="btn secondary" href="{% url 'edit_resume' resume.id %}">✎ Edit</a>
+    </div>
+  </header>
+
+  <article class="resume-card" aria-label="Resume content">
+    <div class="person-head">
+      <div class="person-left">
+        <h2 class="name">{{ resume.data.personal.full_name|default:'' }}</h2>
+        <div class="headline">{{ resume.data.personal.headline|default:'' }}</div>
+        <div class="contact" aria-label="Contact information">
+          {% with loc=resume.data.personal.location email=resume.data.personal.email phone=resume.data.personal.phone %}
+            {% if loc %}{{ loc }}{% endif %}
+            {% if email %} • <a href="mailto:{{ email }}">{{ email }}</a>{% endif %}
+            {% if phone %} • <a href="tel:{{ phone }}">{{ phone }}</a>{% endif %}
+          {% endwith %}
+        </div>
+      </div>
+
+      <aside class="meta-box" aria-labelledby="quick-stats">
+        <p id="quick-stats" style="font-weight:700;color:var(--primary)">Quick info</p>
+        <p><strong>Owner:</strong> {{ resume.owner.username }}</p>
+        <p><strong>Last updated:</strong> {{ resume.updated_at|date:"Y-m-d H:i" }}</p>
+        <p><strong>Template:</strong> {{ request.GET.template|default:"modern" }}</p>
+      </aside>
+    </div>
+
+    <div class="grid-2">
+      <div>
+        <section class="section" id="summary">
+          <h3>Summary</h3>
+          <p>{{ resume.data.summary|default:"—" }}</p>
+        </section>
+
+        <section class="section" id="experience">
+          <h3>Experience</h3>
+          {% if resume.data.experience %}
+            {% for ex in resume.data.experience %}
+              <div style="margin-bottom:10px;">
+                <strong>{{ ex.title }}</strong> <span style="color:var(--muted)">— {{ ex.company }}</span>
+                <div style="font-size:0.95rem;color:var(--muted)">{{ ex.duration }}</div>
+                <div style="margin-top:6px;">{{ ex.description }}</div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <p class="muted">No experience listed.</p>
+          {% endif %}
+        </section>
+
+        <section class="section" id="projects">
+          <h3>Projects</h3>
+          {% if resume.data.projects %}
+            {% for p in resume.data.projects %}
+              <div style="margin-bottom:10px;">
+                <strong>{{ p.title }}</strong>
+                {% if p.tech %}<span style="color:var(--muted)"> — {{ p.tech }}</span>{% endif %}
+                <div style="margin-top:6px;">{{ p.description }}</div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <p class="muted">No projects listed.</p>
+          {% endif %}
+        </section>
+      </div>
+
+      <aside>
+        <section class="section" id="education">
+          <h3>Education</h3>
+          {% if resume.data.education %}
+            {% for e in resume.data.education %}
+              <div style="margin-bottom:10px;">
+                <strong>{{ e.school }}</strong>
+                <div style="color:var(--muted)">{{ e.degree }} • {{ e.duration }}</div>
+                <div style="margin-top:6px;">{{ e.details }}</div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <p class="muted">No education listed.</p>
+          {% endif %}
+        </section>
+
+        <section class="section" id="skills">
+          <h3>Skills</h3>
+          <div class="skills" aria-label="Skills list">
+            {% if resume.data.skills %}
+              {% for s in resume.data.skills %}
+                <span class="skill-pill">{{ s }}</span>
+              {% endfor %}
+            {% else %}
+              <p class="muted">No skills listed.</p>
+            {% endif %}
+          </div>
+        </section>
+
+        <section class="section" id="achievements">
+          <h3>Achievements</h3>
+          <div>{{ resume.data.achievements|default:"—" }}</div>
+        </section>
+      </aside>
+    </div>
+  </article>
+</div>
+
+<script>
+  // Print behavior: open print view of the resume in a new window so the page chrome is minimal.
+  (function(){
+    const printBtn = document.getElementById('print-btn');
+    if (!printBtn) return;
+
+    printBtn.addEventListener('click', function(){
+      // Open resume preview in new tab using preview endpoint (keeps backend unchanged)
+      const previewUrl = "{% url 'resume_preview' resume.id %}" + '?template=modern';
+      // open printable view, then call print (some browsers block automatic print; we open the user to print)
+      const w = window.open(previewUrl, '_blank');
+      if (!w) {
+        alert('Popup blocked — allow popups for this site to use Print.');
+        return;
+      }
+      // Attempt to call print after load (best-effort)
+      w.focus();
+    });
+  })();
+</script>
+{% endblock %}

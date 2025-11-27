@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Confirm Application — Nexty{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --primary: #0b66c3;
+    --accent: #06b6d4;
+    --bg: #f9fbfd;
+    --card: #ffffff;
+    --text: #1a1a1a;
+    --muted: #6b7280;
+    --success: #16a34a;
+    --error: #dc2626;
+    --radius: 12px;
+    --shadow: 0 8px 24px rgba(0,0,0,0.06);
+  }
+
+  body {
+    background: var(--bg);
+    font-family: Inter, system-ui, sans-serif;
+  }
+
+  main {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 32px;
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    animation: fadeIn 0.5s ease-in-out;
+  }
+
+  h2 {
+    font-size: 1.8rem;
+    color: var(--primary);
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  p {
+    margin-bottom: 0.8rem;
+    color: var(--text);
+    font-size: 1rem;
+  }
+
+  strong {
+    color: var(--primary);
+  }
+
+  small {
+    color: var(--muted);
+  }
+
+  textarea {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    border-radius: var(--radius);
+    border: 1px solid #dce6f3;
+    resize: vertical;
+    transition: box-shadow 0.2s ease;
+  }
+
+  textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(11,102,195,0.15);
+  }
+
+  form {
+    margin-top: 1rem;
+  }
+
+  input[type="file"] {
+    margin-top: 8px;
+    border: 1px solid #dce6f3;
+    border-radius: var(--radius);
+    padding: 8px;
+    width: 100%;
+  }
+
+  button {
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius);
+    padding: 10px 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(11, 102, 195, 0.1);
+    margin-right: 8px;
+  }
+
+  button:hover {
+    background: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  button[value="edit"] {
+    background: #e5e7eb;
+    color: #111827;
+  }
+
+  button[value="edit"]:hover {
+    background: #cbd5e1;
+  }
+
+  .keyword-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 6px;
+  }
+
+  .keyword-pill {
+    background: #e0f2fe;
+    color: #0369a1;
+    border-radius: 9999px;
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .keyword-pill.missing {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 640px) {
+    main { padding: 20px; }
+    h2 { font-size: 1.5rem; }
+    button { width: 100%; margin-bottom: 8px; }
+  }
+</style>
+
+<main>
+  <h2>Confirm Application for: {{ job.title }}</h2>
+
+  <p><strong>ATS Score:</strong> 
+    <span style="color: {% if score >= 70 %}var(--success){% elif score >= 40 %}#f59e0b{% else %}var(--error){% endif %}; font-weight:700;">
+      {{ score }}%
+    </span>
+  </p>
+
+  <div>
+    <p><strong>Matched Keywords:</strong></p>
+    {% if matched %}
+      <div class="keyword-list">
+        {% for word in matched %}
+          <span class="keyword-pill">{{ word }}</span>
+        {% endfor %}
+      </div>
+    {% else %}
+      <small>None</small>
+    {% endif %}
+  </div>
+
+  <div style="margin-top:12px;">
+    <p><strong>Missing Keywords:</strong></p>
+    {% if missing %}
+      <div class="keyword-list">
+        {% for word in missing %}
+          <span class="keyword-pill missing">{{ word }}</span>
+        {% endfor %}
+      </div>
+    {% else %}
+      <small>None</small>
+    {% endif %}
+  </div>
+
+  <form method="post" enctype="multipart/form-data" aria-label="Confirm job application form">
+    {% csrf_token %}
+    <input type="hidden" name="resume_id" value="{% if chosen_resume %}{{ chosen_resume.id }}{% endif %}">
+
+    {% if uploaded_exists %}
+      <p style="margin-top:12px;">You uploaded a file — it will be submitted with the application.  
+        <br>If you changed it, re-upload now:
+      </p>
+      <input type="file" name="uploaded_resume" accept=".pdf,.docx">
+    {% endif %}
+
+    <p style="margin-top:16px;"><strong>Cover Letter (editable):</strong></p>
+    <textarea name="cover_letter" rows="6">{{ form.cover_letter.value }}</textarea>
+
+    <div style="margin-top:18px; display:flex; flex-wrap:wrap; gap:10px;">
+      <button type="submit" name="action" value="confirm">✅ Confirm & Submit</button>
+      <button type="submit" name="action" value="edit">✏️ Go Back & Edit</button>
+    </div>
+  </form>
+</main>
+{% endblock %}

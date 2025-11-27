@@ -1,0 +1,13 @@
+Hi {{ student_name }},
+
+Good news — you have been shortlisted for the role: {{ job_title }}.
+
+Interview details:
+Date/time: {{ interview_dt }}
+Meeting link: {{ meeting_link }}
+
+Message from recruiter:
+{{ message }}
+
+Best,
+{{ hr_name }}

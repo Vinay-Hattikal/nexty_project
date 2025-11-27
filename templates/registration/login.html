@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Login — Nexty{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --primary: #0b66c3;
+    --accent: #06b6d4;
+    --danger: #dc2626;
+    --bg: #f3f4f6;
+    --card: #ffffff;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --radius: 12px;
+    --shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+
+  body {
+    background: var(--bg);
+    font-family: Inter, system-ui, sans-serif;
+  }
+
+  .login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 85vh;
+    padding: 20px;
+  }
+
+  .login-card {
+    background: var(--card);
+    padding: 40px 36px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 420px;
+  }
+
+  h2 {
+    text-align: center;
+    font-size: 1.8rem;
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  table {
+    width: 100%;
+    border-spacing: 0 12px;
+  }
+
+  label {
+    font-weight: 600;
+    color: var(--text);
+    display: inline-block;
+    margin-bottom: 4px;
+  }
+
+  input[type="text"],
+  input[type="password"],
+  input[type="email"] {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    border: 1px solid #d1d5db;
+    font-size: 0.95rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(11, 102, 195, 0.15);
+  }
+
+  button {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 12px 16px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+  }
+
+  button:hover {
+    background: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .error {
+    background: #fdecea;
+    color: var(--danger);
+    border: 1px solid #fca5a5;
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    margin-bottom: 1rem;
+    text-align: center;
+    font-weight: 500;
+  }
+
+  p.signup {
+    text-align: center;
+    margin-top: 1rem;
+    color: var(--muted);
+  }
+
+  p.signup a {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  p.signup a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 480px) {
+    .login-card {
+      padding: 28px 20px;
+    }
+  }
+</style>
+
+<div class="login-container">
+  <div class="login-card">
+    <h2>Login</h2>
+
+    {% if form.errors %}
+      <div class="error">Invalid credentials. Please try again.</div>
+    {% endif %}
+
+    <form method="post">
+      {% csrf_token %}
+      <table>
+        {{ form.as_table }}
+      </table>
+      <input type="hidden" name="next" value="{{ next }}">
+      <button type="submit">Log in</button>
+    </form>
+
+    <p class="signup">
+      Don’t have an account?
+      <a href="{% url 'signup' %}">Sign up</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

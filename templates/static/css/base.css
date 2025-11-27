@@ -1,0 +1,72 @@
+/* base.css — reset, theme variables, header/nav, buttons, forms, utilities */
+
+/* RESET */
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;
+  background: linear-gradient(180deg,#f7f9fc,#eef4fb);
+  color:#0f172a;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  line-height:1.45;
+  font-size:15px;
+  min-height:100vh;
+}
+
+/* THEME */
+:root{
+  --brand-1:#3b82f6; --brand-2:#06b6d4; --muted:#6b7280;
+  --panel:#ffffff; --success:#16a34a; --danger:#ef4444;
+  --radius:12px; --shadow-sm:0 6px 18px rgba(12,30,77,0.06);
+  --container:1100px; --pad:20px;
+}
+
+/* CONTAINER */
+.container{max-width:var(--container);margin:0 auto;padding-left:var(--pad);padding-right:var(--pad)}
+
+/* HEADER / NAV */
+.header{background:rgba(255,255,255,0.65);backdrop-filter:blur(6px);border-bottom:1px solid rgba(14,30,60,0.04);position:sticky;top:0;z-index:60}
+.header-inner{display:flex;align-items:center;justify-content:space-between;padding:14px 0;gap:12px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
+.brand .logo{width:44px;height:44px;border-radius:10px;display:grid;place-items:center;color:#fff;font-weight:700;background:linear-gradient(90deg,var(--brand-1),var(--brand-2));box-shadow:var(--shadow-sm)}
+.nav{display:flex;gap:10px;align-items:center}
+.nav a{color:var(--muted);text-decoration:none;padding:8px 10px;border-radius:10px;transition:all .18s}
+.nav a:hover{background:rgba(14,30,60,0.04);color:inherit}
+
+/* mobile */
+.mobile-toggle{display:none}
+@media (max-width:780px){.nav{display:none}.mobile-toggle{display:inline-block}}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:600;transition:all .18s;text-decoration:none}
+.btn:focus{outline:3px solid rgba(59,130,246,0.12);outline-offset:3px}
+.btn-primary{background:var(--brand-1);color:#fff;box-shadow:var(--shadow-sm)}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid rgba(12,30,77,0.04)}
+.btn-outline{background:transparent;color:var(--brand-1);border:1px solid rgba(59,130,246,0.14)}
+.btn-danger{background:var(--danger);color:#fff}
+
+/* FORMS - general */
+.form-group{margin-bottom:12px}
+label{display:block;font-weight:600;color:var(--muted);margin-bottom:6px;font-size:0.92rem}
+input[type="text"],input[type="email"],input[type="password"],textarea,select{
+  width:100%;padding:10px 12px;border-radius:10px;border:1px solid rgba(12,30,77,0.08);background:#fff;font-size:0.95rem;transition:box-shadow .18s,transform .18s
+}
+input:focus,textarea:focus,select:focus{box-shadow:0 8px 30px rgba(59,130,246,0.06);border-color:rgba(59,130,246,0.6);transform:translateY(-2px);outline:none}
+textarea{min-height:120px;resize:vertical}
+
+/* UTILS */
+.panel{background:var(--panel);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow-sm);border:1px solid rgba(12,30,77,0.04)}
+.card{background:var(--panel);border-radius:10px;padding:14px;box-shadow:0 6px 20px rgba(0,0,0,0.04);transition:transform .18s}
+.card:hover{transform:translateY(-3px)}
+.hint{color:var(--muted);font-size:0.92rem}
+.text-muted{color:var(--muted)}
+.center{text-align:center}
+.mt-4{margin-top:1rem}
+.mb-4{margin-bottom:1rem}
+
+/* MESSAGES */
+.messages{list-style:none;margin:14px auto;max-width:1000px;padding:0}
+.message{padding:12px 18px;border-radius:8px;margin-bottom:8px;font-size:0.95rem}
+.message.success{background:#e7f9ed;color:#0d6b29;border:1px solid #b5f2c6}
+.message.error{background:#fdecea;color:#611a15;border:1px solid #f5c2c0}

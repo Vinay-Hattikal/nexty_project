@@ -1,0 +1,169 @@
+/* static/css/resume.css - print-friendly, consistent alignment & spacing */
+
+/* Root variables */
+:root {
+  --content-width: 800px;
+  --accent: #0b66c3;
+  --muted: #666;
+  --bg-section: #f4f8ff;
+  --gap: 12px;
+  --font-sans: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  color: #222;
+  font-size: 11pt;
+  line-height: 1.45;
+}
+
+/* Container centered with fixed width for consistent PDF rendering */
+.container {
+  width: var(--content-width);
+  margin: 26px auto;
+  padding: 0 12px;
+  box-sizing: border-box;
+}
+
+/* Header */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+  border-bottom: 2px solid var(--bg-section);
+}
+
+/* Name & title */
+.name {
+  font-size: 22pt;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 4px;
+  text-align: left;
+}
+
+.title {
+  font-size: 10.5pt;
+  color: var(--muted);
+}
+
+/* Contact block (right side) */
+.contact {
+  text-align: right;
+  font-size: 9.5pt;
+  color: var(--muted);
+}
+
+/* Layout: two-column with floats (more compatible with PDF engines) */
+.two-col {
+  overflow: visible; /* allow floats to flow */
+}
+
+/* Left column */
+.left {
+  float: left;
+  width: 62%;
+  box-sizing: border-box;
+  padding-right: 12px;
+}
+
+/* Right column */
+.right {
+  float: right;
+  width: 36%;
+  box-sizing: border-box;
+  padding-left: 12px;
+}
+
+/* Sections */
+.section {
+  margin-bottom: 14px;
+  clear: both;
+}
+
+.section h3 {
+  margin: 0 0 8px 0;
+  padding: 6px 8px;
+  background: var(--bg-section);
+  color: var(--accent);
+  font-size: 11pt;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+/* Generic item (experience, project) */
+.item {
+  margin: 8px 0;
+}
+
+.item-title {
+  font-weight: 600;
+  font-size: 10.5pt;
+  margin-bottom: 2px;
+  text-align: left;
+}
+
+.item-sub {
+  color: var(--muted);
+  font-size: 9.5pt;
+  margin-bottom: 6px;
+}
+
+.r-text {
+  margin: 4px 0 0 0;
+  text-align: justify; /* makes paragraph edges even */
+  font-size: 10pt;
+}
+
+/* Lists */
+ul {
+  margin: 6px 0 0 16px;
+  padding: 0;
+  list-style: disc;
+}
+
+/* Skill badges */
+.skill-badge {
+  display: inline-block;
+  margin: 0 6px 6px 0;
+  padding: 4px 8px;
+  font-size: 9pt;
+  border-radius: 4px;
+  background: #eef6ff;
+  color: var(--accent);
+  border: 1px solid #d6e9ff;
+}
+
+/* Muted small text */
+.muted, .small-muted {
+  color: var(--muted);
+  font-size: 9.5pt;
+}
+
+/* Footer */
+footer.resume-footer {
+  clear: both;
+  margin-top: 18px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 9pt;
+}
+
+/* Print rules */
+@media print {
+  .container { width: 100%; max-width: 720px; margin: 0 auto; }
+  .section h3 { page-break-inside: avoid; }
+  .item { page-break-inside: avoid; }
+}
+
+/* Responsive preview */
+@media screen and (max-width: 900px) {
+  .container { padding: 0 12px; }
+  .left, .right { float: none; width: 100%; padding: 0; }
+  .contact { text-align: left; margin-top: 8px; }
+}

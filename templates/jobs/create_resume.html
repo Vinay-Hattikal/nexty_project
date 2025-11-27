@@ -1,0 +1,975 @@
+{% load static %}
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>NextCareer — Resume Builder</title>
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <style>
+    /* ... your existing CSS (unchanged) ... */
+    :root{
+      --bg: #f6f9fc;
+      --card: #ffffff;
+      --muted: #6b7280;
+      --primary: #0b66c3;
+      --accent: #06b6d4;
+      --danger: #dc2626;
+      --text: #0f1724;
+      --subtle: #f3f6fb;
+      --radius: 10px;
+      --shadow-sm: 0 6px 18px rgba(8,40,80,0.06);
+      --shadow-lg: 0 18px 50px rgba(8,40,80,0.08);
+      --gutter: 16px;
+      --max-width: 1100px;
+      --focus: rgba(11,102,195,0.18);
+      --transition: 180ms cubic-bezier(.2,.9,.3,1);
+    }
+    /* reset & base */
+    *,*::before,*::after{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:var(--bg);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+    body{
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color:var(--text);
+      line-height:1.45;
+      padding: 20px 12px;
+      display:flex;
+      justify-content:center;
+    }
+    a{color:var(--primary);text-decoration:none}
+    a:hover{text-decoration:underline}
+    img{max-width:100%;height:auto;display:block}
+    /* main container */
+    .builder-wrap{
+      width:100%;
+      max-width:var(--max-width);
+      background:linear-gradient(180deg,var(--card),#fbfdff);
+      border-radius:14px;
+      box-shadow:var(--shadow-lg);
+      padding:18px;
+      border: 1px solid rgba(0,0,0,0.04);
+    }
+    header nav{font-weight:700;color:var(--muted); margin-bottom:12px; display:flex; gap:8px; align-items:center; }
+    header nav a{color:var(--primary); font-weight:700}
+    h2#page-title{margin:0 0 12px 0;font-size:1.3rem;color:var(--text)}
+    /* steps navigation (horizontal scroll on small screens) */
+    .steps{
+      display:flex;
+      gap:8px;
+      overflow:auto;
+      padding-bottom:6px;
+      margin-bottom:14px;
+      -webkit-overflow-scrolling:touch;
+    }
+    .step-btn{
+      flex:0 0 auto;
+      padding:8px 12px;
+      border-radius:999px;
+      border:1px solid rgba(0,0,0,0.06);
+      background:transparent;
+      color:var(--text);
+      font-weight:700;
+      cursor:pointer;
+      transition: transform var(--transition), background var(--transition), color var(--transition);
+      white-space:nowrap;
+    }
+    .step-btn.active{
+      background: linear-gradient(90deg,var(--primary),#7c3aed);
+      color:#fff;
+      border-color:transparent;
+      transform:translateY(-3px);
+      box-shadow: 0 10px 30px rgba(11,102,195,0.10);
+    }
+    /* form layout */
+    form{margin:0}
+    .step{
+      background: linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.98));
+      padding:14px;
+      border-radius:10px;
+      border:1px solid rgba(0,0,0,0.03);
+      margin-bottom:14px;
+      transition: transform var(--transition), box-shadow var(--transition);
+    }
+    .section-header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px}
+    .section-header h3{margin:0;font-size:1.05rem}
+    .section-controls{font-size:0.95rem;color:var(--muted)}
+    label{display:block;font-weight:600;margin-top:8px;font-size:0.95rem}
+    input.inline-input, textarea.inline-input, select.inline-input {
+      width:100%;
+      padding:10px 12px;
+      margin-top:6px;
+      border-radius:8px;
+      border:1px solid rgba(0,0,0,0.08);
+      background: #fff;
+      font-size:0.95rem;
+      color:var(--text);
+      transition: box-shadow var(--transition), transform var(--transition);
+    }
+    input.inline-input:focus, textarea.inline-input:focus, select.inline-input:focus {
+      outline:none;
+      box-shadow:0 8px 28px rgba(11,102,195,0.08);
+      border-color: rgba(11,102,195,0.12);
+      transform: translateY(-2px);
+    }
+    .muted{color:var(--muted);font-size:0.95rem}
+    /* preview */
+    .preview-box{
+      border-radius:10px;
+      padding:14px;
+      background:linear-gradient(180deg,#fff,#fbfdff);
+      border:1px solid rgba(0,0,0,0.03);
+      box-shadow:var(--shadow-sm);
+    }
+    .json-preview{
+      white-space: pre-wrap;
+      background:#0b1220;
+      color:#dbeafe;
+      padding:12px;
+      border-radius:8px;
+      max-height:320px;
+      overflow:auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+      font-size:0.85rem;
+    }
+    /* item lists (education, experience, projects) */
+    .item{border-radius:10px;padding:12px;background:#fff;border:1px solid rgba(0,0,0,0.03);margin-bottom:10px;box-shadow:var(--shadow-sm)}
+    .flex-row{display:flex;gap:10px;align-items:center}
+    .small{width:48%}
+    .inline-actions{display:flex;gap:8px;align-items:center}
+    .link-like{background:none;border:0;color:var(--primary);text-decoration:underline;padding:0;font-weight:700;cursor:pointer}
+    /* bullets & skill lines */
+    .bullets-list{margin-top:8px}
+    .proj-bullet, .skill-line{padding:10px;border-radius:8px;border:1px solid rgba(0,0,0,0.06);width:100%}
+    .bullet-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+    .bullet-row button{background:none;border:0;color:var(--danger);text-decoration:underline;cursor:pointer;padding:6px 0}
+    /* custom sections style */
+    .custom-section{border:1px dashed rgba(0,0,0,0.06);padding:12px;border-radius:10px;background:#fff;margin-bottom:10px;position:relative}
+    .custom-controls{display:flex;gap:8px;align-items:center}
+    /* nav buttons */
+    .nav-buttons{display:flex;gap:12px;justify-content:space-between;align-items:center;margin-top:8px}
+    .nav-buttons .link-like{padding:8px 12px;border-radius:8px;background:transparent}
+    button[type="button"], .btn-primary {
+      background: linear-gradient(90deg,var(--primary),#6f47d4);
+      color:#fff;padding:10px 14px;border-radius:8px;border:0;font-weight:800;cursor:pointer;
+      box-shadow:0 10px 28px rgba(11,102,195,0.08); transition: transform var(--transition);
+    }
+    button[type="button"].secondary, .btn-secondary {
+      background:#fff;border:1px solid rgba(0,0,0,0.06);color:var(--primary);padding:10px 12px;border-radius:8px;font-weight:700;
+    }
+    button[type="button"]:hover, .btn-primary:hover { transform: translateY(-3px); }
+    /* restore panel */
+    .restore-list{margin-top:8px;padding:10px;background:#fffbe6;border:1px solid #ffe58f;border-radius:8px}
+    #restore-container{margin-top:12px}
+    /* small utilities */
+    .inline-hint{font-size:0.9rem;color:var(--muted);margin-top:6px}
+    .center { text-align:center }
+    .sr-only { position:absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    /* responsive behaviors */
+    @media (min-width:760px){
+      .hero-two-col{display:grid;grid-template-columns:1fr 420px;gap:24px}
+      .small{width:48%}
+      .flex-row .small{width:calc(50% - 5px)}
+      .steps{gap:10px}
+    }
+    @media (min-width:1100px){
+      .builder-wrap{padding:22px}
+      .hero-two-col{grid-template-columns:1fr 520px}
+    }
+    @media (max-width:520px){
+      body{padding:12px}
+      .builder-wrap{padding:12px}
+      .hero-two-col{display:block}
+      .step-btn{padding:8px 10px;font-size:0.95rem}
+      .small{width:100%}
+      .flex-row{flex-direction:column}
+      .nav-buttons{flex-direction:column-reverse;gap:8px}
+      .item{padding:10px}
+      .json-preview{max-height:200px}
+    }
+    /* focus ring for accessibility */
+    a:focus, button:focus, input:focus, textarea:focus, select:focus {
+      outline:3px solid var(--focus);
+      outline-offset:3px;
+      border-radius:8px;
+    }
+    /* custom-section focus style for keyboard / identification */
+    .custom-section:focus-within { box-shadow: 0 8px 28px rgba(11,102,195,0.08); border-color: rgba(11,102,195,0.12); }
+    .custom-nav { display:flex; gap:8px; margin-top:8px; justify-content:flex-end; }
+    .custom-nav button { padding:8px 10px; border-radius:8px; border:1px solid rgba(0,0,0,0.06); background:#fff; cursor:pointer; font-weight:700; }
+    .custom-nav button.primary { background: linear-gradient(90deg,var(--primary),#6f47d4); color:#fff; border:0; box-shadow:0 8px 20px rgba(11,102,195,0.08); }
+  </style>
+</head>
+<body>
+  <div class="builder-wrap" role="main" aria-labelledby="page-title">
+    <header>
+      <nav>
+        <a href="{% url 'home' %}">NextCareer</a> • <a href="{% url 'resume_list' %}">My Resumes</a>
+      </nav>
+    </header>
+
+    <h2 id="page-title">Build Your Resume</h2>
+
+    <div class="resume-builder">
+      <div class="steps" style="margin-bottom:12px;">
+        <button class="step-btn active" data-step="1">1. Personal</button>
+        <button class="step-btn" data-step="2">2. Summary</button>
+        <button class="step-btn" data-step="3">3. Education</button>
+        <button class="step-btn" data-step="4">4. Experience</button>
+        <button class="step-btn" data-step="5">5. Projects</button>
+        <button class="step-btn" data-step="6">6. Skills</button>
+        <button class="step-btn" data-step="7">7. Preview & Save</button>
+      </div>
+
+      <form id="resume-form" onsubmit="return false;">
+        <!-- STEP blocks (unchanged) -->
+        <div class="step" data-step="1">
+          <div class="section-header">
+            <h3>Personal Info</h3>
+            <div class="section-controls"><button type="button" class="link-like remove-section" data-section="personal">Remove Section</button></div>
+          </div>
+          <label>Full name<br><input type="text" id="full_name" class="inline-input" placeholder="e.g. Vinay Hattikal"></label>
+          <label>Headline / Title<br><input type="text" id="headline" class="inline-input" placeholder="AI enthusiast"></label>
+          <label>Location<br><input type="text" id="location" class="inline-input" placeholder="City, State"></label>
+          <label>Email<br><input type="email" id="email" class="inline-input" placeholder="you@example.com"></label>
+          <label>Phone<br><input type="text" id="phone" class="inline-input" placeholder="+91 9xxxxxxxxx"></label>
+          <label>LinkedIn URL<br><input type="url" id="linkedin" class="inline-input" placeholder="https://www.linkedin.com/in/..."></label>
+        </div>
+
+        <div class="step" data-step="2" style="display:none;">
+          <div class="section-header">
+            <h3>Professional Summary</h3>
+            <div class="section-controls"><button type="button" class="link-like remove-section" data-section="summary">Remove Section</button></div>
+          </div>
+          <textarea id="summary" class="inline-input" rows="6" placeholder="Short professional summary — 2-4 lines"></textarea>
+        </div>
+
+        <div class="step" data-step="3" style="display:none;">
+          <div class="section-header">
+            <h3>Education</h3>
+            <div class="section-controls">
+              <button type="button" id="add-education" class="link-like">+ Add Education</button>
+              <button type="button" class="link-like remove-section" data-section="education">Remove Section</button>
+            </div>
+          </div>
+          <div id="education-list"></div>
+        </div>
+
+        <div class="step" data-step="4" style="display:none;">
+          <div class="section-header">
+            <h3>Experience</h3>
+            <div class="section-controls">
+              <button type="button" id="add-experience" class="link-like">+ Add Experience</button>
+              <button type="button" class="link-like remove-section" data-section="experience">Remove Section</button>
+            </div>
+          </div>
+          <div id="experience-list"></div>
+        </div>
+
+        <div class="step" data-step="5" style="display:none;">
+          <div class="section-header">
+            <h3>Projects</h3>
+            <div class="section-controls">
+              <button type="button" id="add-project" class="link-like">+ Add Project</button>
+              <button type="button" class="link-like remove-section" data-section="projects">Remove Section</button>
+            </div>
+          </div>
+          <div id="projects-list"></div>
+        </div>
+
+        <div class="step" data-step="6" style="display:none;">
+          <div class="section-header">
+            <h3>Skills & Achievements</h3>
+            <div class="section-controls"><button type="button" class="link-like remove-section" data-section="skills">Remove Section</button></div>
+          </div>
+
+          <div>
+            <strong>Skills (one line per group)</strong>
+            <div class="muted" style="font-size:0.9rem;">Examples: <em>Programming Languages: Python, Java</em> or <em>Databases: PostgreSQL</em></div>
+            <div id="skills-list" class="bullets-list" style="margin-top:8px;"></div>
+            <div style="margin-top:8px;">
+              <button type="button" id="add-skill" class="link-like">+ Add skill line</button>
+            </div>
+          </div>
+
+          <h4 style="margin-top:12px;">Achievements / Awards</h4>
+          <textarea id="achievements" class="inline-input" rows="4" placeholder="Awards, hackathon achievements, certifications"></textarea>
+        </div>
+
+        <!-- Custom sections area -->
+        <div style="margin-top:12px;">
+          <h3>Custom Sections</h3>
+          <div id="custom-sections" aria-live="polite"></div>
+
+          <div style="margin-top:8px;">
+            <input type="text" id="custom-title" class="inline-input" placeholder="Section title (e.g. Certifications)">
+            <textarea id="custom-content" class="inline-input" rows="2" placeholder="Content for this section"></textarea>
+            <div class="flex-row" style="margin-top:8px;">
+              <button type="button" id="add-custom" class="btn-primary">+ Add Custom Section</button>
+            </div>
+          </div>
+
+          <!-- New Prev/Next controls placed below custom sections -->
+          <div style="margin-top:12px; display:flex; gap:8px; justify-content:space-between; align-items:center;">
+            <div>
+              <button type="button" id="prev-step-bottom" class="secondary" style="display:none;">← Previous</button>
+            </div>
+            <div>
+              <button type="button" id="next-step-bottom" class="btn-primary">Next →</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" data-step="7" style="display:none;">
+          <h3>Preview</h3>
+          <div id="visual-preview" class="preview-box" aria-live="polite"></div>
+          <h4 style="margin-top:12px">Raw JSON</h4>
+          <pre id="json-preview" class="json-preview" aria-label="Resume JSON preview"></pre>
+          <label>Resume title (for your saved versions)<br><input type="text" id="resume_title" class="inline-input" placeholder="My Resume - Template A"></label>
+          <div style="margin-top:12px;">
+            <button type="button" id="save-resume" class="btn-primary">Save Resume</button>
+            <button type="button" class="secondary" onclick="buildPreview();" style="margin-left:8px;">Refresh Preview</button>
+          </div>
+        </div>
+
+        <div class="nav-buttons">
+          <button type="button" id="prev-step" style="display:none;" class="link-like">← Previous</button>
+          <div style="flex:1"></div>
+          <button type="button" id="next-step" class="link-like">Next →</button>
+        </div>
+      </form>
+
+      <!-- Restore removed sections -->
+      <div id="restore-container" style="margin-top:12px; display:none;">
+        <div class="restore-list">
+          <strong>Removed sections:</strong>
+          <div id="removed-list" style="margin-top:6px;"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+  /* -------------------------
+     All JS is inline to keep file self-contained.
+     Adds: bottom prev/next buttons and per-custom-section navigation.
+     Experience now supports bullet points like Projects.
+     ------------------------- */
+
+  // Escape helper
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, function(m){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]; });
+  }
+
+  // ======= Creation helpers (same as before, with experience updated) =======
+  function createEducationItem(ed = {}) {
+    const container = document.createElement('div');
+    container.className = 'item';
+    container.innerHTML = `
+      <label>College / School<br><input class="inline-input edu-school" value="${escapeHtml(ed.school || '')}"></label>
+      <label>Degree / Course<br><input class="inline-input edu-degree" value="${escapeHtml(ed.degree || '')}"></label>
+      <label>Duration<br><input class="inline-input edu-duration" value="${escapeHtml(ed.duration || '')}"></label>
+      <label>Details (CGPA / Notes)<br><input class="inline-input edu-details" value="${escapeHtml(ed.details || '')}"></label>
+      <div style="margin-top:8px;"><button type="button" class="link-like remove-edu">Remove</button></div>
+    `;
+    container.querySelector('.remove-edu').addEventListener('click', ()=>container.remove());
+    return container;
+  }
+
+  // UPDATED: createExperienceItem now supports bullets like projects
+  function createExperienceItem(ex = {}) {
+    const container = document.createElement('div');
+    container.className = 'item';
+    container.innerHTML = `
+      <label>Role / Title<br><input class="inline-input exp-title" value="${escapeHtml(ex.title || '')}"></label>
+      <label>Company / Org<br><input class="inline-input exp-company" value="${escapeHtml(ex.company || '')}"></label>
+      <label>Duration<br><input class="inline-input exp-duration" value="${escapeHtml(ex.duration || '')}"></label>
+      <div style="margin-top:8px;">
+        <strong>Responsibilities / Achievements</strong>
+        <div class="muted" style="font-size:0.9rem;">Enter one short line per bullet. Click "Add bullet" to add new points.</div>
+        <div class="bullets-list exp-bullets-list" style="margin-top:6px"></div>
+        <div style="margin-top:8px;">
+          <button type="button" class="link-like add-exp-bullet">+ Add bullet</button>
+          <button type="button" class="link-like remove-exp">Remove</button>
+        </div>
+      </div>
+    `;
+    const bulletsList = container.querySelector('.exp-bullets-list');
+
+    function addBullet(value = '') {
+      const row = document.createElement('div');
+      row.className = 'bullet-row';
+      row.innerHTML = `
+        <input class="proj-bullet exp-bullet" placeholder="Short bullet point" value="${escapeHtml(value || '')}">
+        <button type="button" class="remove-bullet">Remove</button>
+      `;
+      row.querySelector('.remove-bullet').addEventListener('click', ()=> row.remove());
+      bulletsList.appendChild(row);
+      return row;
+    }
+
+    // populate initial bullets from either array or newline text
+    const lines = Array.isArray(ex.description_lines) ? ex.description_lines.slice()
+                  : (ex.description ? ex.description.split(/\r?\n/).map(s=>s.trim()).filter(Boolean) : []);
+    if (lines.length === 0) addBullet('');
+    else lines.forEach(l => addBullet(l));
+
+    container.querySelector('.add-exp-bullet').addEventListener('click', ()=> addBullet(''));
+    container.querySelector('.remove-exp').addEventListener('click', ()=> container.remove());
+    return container;
+  }
+
+  function createProjectItem(p = {}) {
+    const container = document.createElement('div');
+    container.className = 'item';
+    container.innerHTML = `
+      <label>Project Title<br><input class="inline-input proj-title" value="${escapeHtml(p.title || '')}"></label>
+      <label>Duration / Date<br><input class="inline-input proj-duration" value="${escapeHtml(p.duration || '')}"></label>
+      <label>Technologies Used<br><input class="inline-input proj-tech" value="${escapeHtml(p.tech || '')}"></label>
+      <div style="margin-top:8px;">
+        <strong>Project points</strong>
+        <div class="muted" style="font-size:0.9rem;">Enter one short line per bullet. Click "Add bullet" to add new points.</div>
+        <div class="bullets-list"></div>
+        <div style="margin-top:8px;">
+          <button type="button" class="link-like add-bullet">+ Add bullet</button>
+          <button type="button" class="link-like remove-proj">Remove project</button>
+        </div>
+      </div>
+    `;
+    const bulletsList = container.querySelector('.bullets-list');
+
+    function addBullet(value = '') {
+      const row = document.createElement('div');
+      row.className = 'bullet-row';
+      row.innerHTML = `
+        <input class="proj-bullet" placeholder="Short bullet point" value="${escapeHtml(value || '')}">
+        <button type="button" class="remove-bullet">Remove</button>
+      `;
+      row.querySelector('.remove-bullet').addEventListener('click', ()=> row.remove());
+      bulletsList.appendChild(row);
+      return row;
+    }
+
+    const lines = Array.isArray(p.description_lines) ? p.description_lines.slice() :
+                  (p.description ? p.description.split(/\r?\n/).map(s=>s.trim()).filter(Boolean) : []);
+    if (lines.length === 0) addBullet('');
+    else lines.forEach(l => addBullet(l));
+
+    container.querySelector('.add-bullet').addEventListener('click', ()=> addBullet(''));
+    container.querySelector('.remove-proj').addEventListener('click', ()=> container.remove());
+    return container;
+  }
+
+  function createSkillRow(value = '') {
+    const row = document.createElement('div');
+    row.className = 'bullet-row';
+    row.innerHTML = `
+      <input class="skill-line" placeholder="e.g. Programming Languages: Python, Java" value="${escapeHtml(value || '')}">
+      <button type="button" class="remove-skill">Remove</button>
+    `;
+    row.querySelector('.remove-skill').addEventListener('click', ()=> row.remove());
+    return row;
+  }
+  function addSkillLine(value='') { document.getElementById('skills-list').appendChild(createSkillRow(value)); }
+
+  // Custom section builder with navigation anchors
+  function createCustomSection(title='', content='') {
+    const id = 'custom-' + Math.random().toString(36).slice(2,8);
+    const container = document.createElement('div');
+    container.className = 'custom-section';
+    container.tabIndex = 0;
+    container.dataset.customId = id;
+    container.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <strong class="cust-title">${escapeHtml(title || 'Untitled')}</strong>
+        <div class="custom-controls">
+          <button type="button" class="link-like edit-custom">Edit</button>
+          <button type="button" class="link-like remove-custom">Remove Section</button>
+        </div>
+      </div>
+      <div style="margin-top:8px;">
+        <textarea class="inline-input cust-content" rows="4">${escapeHtml(content || '')}</textarea>
+      </div>
+      <div class="custom-nav" aria-hidden="false">
+        <button type="button" class="custom-prev">Prev Section</button>
+        <button type="button" class="custom-next primary">Next Section</button>
+      </div>
+    `;
+    // Remove
+    container.querySelector('.remove-custom').addEventListener('click', ()=> {
+      if (!confirm('Remove this custom section? You can restore it from the Removed sections panel.')) return;
+      const cid = container.dataset.customId;
+      removedSections.add('custom:' + cid);
+      container.remove();
+      renderRemovedList();
+    });
+    // Edit title
+    container.querySelector('.edit-custom').addEventListener('click', ()=> {
+      const newTitle = prompt('Edit section title', container.querySelector('.cust-title').innerText);
+      if (newTitle !== null) container.querySelector('.cust-title').innerText = newTitle;
+    });
+    // Custom prev/next
+    container.querySelector('.custom-prev').addEventListener('click', ()=> focusAdjacentCustom(container, -1));
+    container.querySelector('.custom-next').addEventListener('click', ()=> focusAdjacentCustom(container, +1));
+    // keyboard: arrow up/down navigate custom sections
+    container.addEventListener('keydown', (e)=> {
+      if (e.key === 'ArrowUp') { e.preventDefault(); focusAdjacentCustom(container, -1); }
+      if (e.key === 'ArrowDown') { e.preventDefault(); focusAdjacentCustom(container, +1); }
+    });
+    return container;
+  }
+
+  // Focus / scroll to next/prev custom section element
+  function focusAdjacentCustom(currentEl, dir) {
+    const list = Array.from(document.querySelectorAll('#custom-sections .custom-section'));
+    if (list.length === 0) return;
+    const idx = list.indexOf(currentEl);
+    if (idx === -1) return;
+    const nxt = list[idx + dir];
+    if (nxt) {
+      nxt.focus();
+      // smooth scroll into view (centered slightly)
+      nxt.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+      // if no adjacent custom, fallback to moving between main steps
+      if (dir > 0) { // next: move to next step
+        document.getElementById('next-step-bottom').click();
+      } else { // prev: go to previous step
+        document.getElementById('prev-step-bottom').click();
+      }
+    }
+  }
+
+  // ---------- Removal/restore ----------
+  const removedSections = new Set();
+  function removeSection(sectionKey) {
+    removedSections.add(sectionKey);
+    if (sectionKey === 'personal') hideSectionElement('[data-step="1"]');
+    if (sectionKey === 'summary') hideSectionElement('[data-step="2"]');
+    if (sectionKey === 'education') hideSectionElement('[data-step="3"]');
+    if (sectionKey === 'experience') hideSectionElement('[data-step="4"]');
+    if (sectionKey === 'projects') hideSectionElement('[data-step="5"]');
+    if (sectionKey === 'skills') hideSectionElement('[data-step="6"]');
+    renderRemovedList();
+  }
+  function restoreSection(sectionKey) {
+    removedSections.delete(sectionKey);
+    if (sectionKey === 'personal') showSectionElement('[data-step="1"]');
+    if (sectionKey === 'summary') showSectionElement('[data-step="2"]');
+    if (sectionKey === 'education') showSectionElement('[data-step="3"]');
+    if (sectionKey === 'experience') showStep(4), showSectionElement('[data-step="4"]');
+    if (sectionKey === 'projects') showSectionElement('[data-step="5"]');
+    if (sectionKey === 'skills') showSectionElement('[data-step="6"]');
+    renderRemovedList();
+  }
+  function hideSectionElement(selector) { const el = document.querySelector(selector); if (el) el.style.display = 'none'; }
+  function showSectionElement(selector) { const el = document.querySelector(selector); if (el) el.style.display = ''; }
+  function renderRemovedList() {
+    const rc = document.getElementById('removed-list');
+    rc.innerHTML = '';
+    if (removedSections.size === 0) { document.getElementById('restore-container').style.display = 'none'; return; }
+    document.getElementById('restore-container').style.display = '';
+    removedSections.forEach(key => {
+      const div = document.createElement('div');
+      if (key.startsWith('custom:')) {
+        div.innerHTML = `<span class="muted">Custom section (removed)</span> <button class="link-like" data-restore="${key}">Restore</button>`;
+      } else {
+        div.innerHTML = `<span class="muted">${key.charAt(0).toUpperCase() + key.slice(1)}</span> <button class="link-like" data-restore="${key}">Restore</button>`;
+      }
+      rc.appendChild(div);
+      div.querySelector('[data-restore]').addEventListener('click', ()=> {
+        const k = div.querySelector('[data-restore]').getAttribute('data-restore');
+        if (k.startsWith('custom:')) {
+          // restoring custom section - we can't recreate original content; create a blank placeholder
+          const newNode = createCustomSection('Restored section', '');
+          document.getElementById('custom-sections').appendChild(newNode);
+          // remove the key
+          removedSections.delete(k);
+          renderRemovedList();
+        } else {
+          restoreSection(k);
+        }
+      });
+    });
+  }
+
+  // Event listeners for remove-section buttons
+  document.addEventListener('click', function(ev){
+    if (ev.target && ev.target.matches('.remove-section')) {
+      const sec = ev.target.getAttribute('data-section');
+      if (sec) {
+        if (!confirm('Remove section "' + sec + '"? You can restore it from the Removed sections panel.')) return;
+        removeSection(sec);
+      }
+    }
+  });
+
+  // ---------- Step navigation ----------
+  let currentStep = 1;
+  const totalSteps = 7;
+  function showStep(n) {
+    currentStep = n;
+    document.querySelectorAll('.step').forEach(s => {
+      const ds = Number(s.dataset.step);
+      if ((ds === 1 && removedSections.has('personal')) ||
+          (ds === 2 && removedSections.has('summary')) ||
+          (ds === 3 && removedSections.has('education')) ||
+          (ds === 4 && removedSections.has('experience')) ||
+          (ds === 5 && removedSections.has('projects')) ||
+          (ds === 6 && removedSections.has('skills'))) {
+        s.style.display = 'none';
+        return;
+      }
+      s.style.display = (ds === n) ? '' : 'none';
+    });
+    document.querySelectorAll('.step-btn').forEach(b => b.classList.toggle('active', Number(b.dataset.step) === n));
+    document.getElementById('prev-step').style.display = (n === 1) ? 'none' : '';
+    document.getElementById('next-step').style.display = (n === totalSteps) ? 'none' : '';
+    // bottom controls mirror top ones
+    document.getElementById('prev-step-bottom').style.display = (n === 1) ? 'none' : '';
+    document.getElementById('next-step-bottom').style.display = (n === totalSteps) ? 'none' : '';
+    if (n === totalSteps) buildPreview();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  document.getElementById('next-step').addEventListener('click', ()=> navigateSteps(1));
+  document.getElementById('prev-step').addEventListener('click', ()=> navigateSteps(-1));
+  document.getElementById('next-step-bottom').addEventListener('click', ()=> navigateSteps(1));
+  document.getElementById('prev-step-bottom').addEventListener('click', ()=> navigateSteps(-1));
+
+  document.querySelectorAll('.step-btn').forEach(b => b.addEventListener('click', ()=> {
+    const n = Number(b.dataset.step);
+    if (!isStepRemoved(n)) showStep(n);
+    else {
+      // find next available
+      let forward = n;
+      if (isStepRemoved(forward)) {
+        // if requested step removed, seek nearest available
+        for (let i=1; i<=totalSteps; i++) {
+          if (!isStepRemoved(i)) { forward = i; break; }
+        }
+      }
+      showStep(forward);
+    }
+  }));
+
+  function isStepRemoved(stepNum) {
+    if (stepNum === 1) return removedSections.has('personal');
+    if (stepNum === 2) return removedSections.has('summary');
+    if (stepNum === 3) return removedSections.has('education');
+    if (stepNum === 4) return removedSections.has('experience');
+    if (stepNum === 5) return removedSections.has('projects');
+    if (stepNum === 6) return removedSections.has('skills');
+    return false;
+  }
+
+  function navigateSteps(direction) {
+    let next = currentStep + direction;
+    if (direction > 0) {
+      while (next <= totalSteps && isStepRemoved(next)) next++;
+    } else {
+      while (next >= 1 && isStepRemoved(next)) next--;
+    }
+    if (next >= 1 && next <= totalSteps) showStep(next);
+  }
+
+  // ---------- Add / remove items ----------
+  document.getElementById('add-education').addEventListener('click', ()=> document.getElementById('education-list').appendChild(createEducationItem()));
+  document.getElementById('add-experience').addEventListener('click', ()=> document.getElementById('experience-list').appendChild(createExperienceItem()));
+  document.getElementById('add-project').addEventListener('click', ()=> document.getElementById('projects-list').appendChild(createProjectItem()));
+  document.getElementById('add-skill').addEventListener('click', ()=> addSkillLine(''));
+
+  // Add custom section
+  document.getElementById('add-custom').addEventListener('click', ()=> {
+    const title = document.getElementById('custom-title').value.trim();
+    const content = document.getElementById('custom-content').value.trim();
+    if (!title) { alert('Please provide a title for the custom section'); return; }
+    const node = createCustomSection(title, content);
+    document.getElementById('custom-sections').appendChild(node);
+    document.getElementById('custom-title').value = '';
+    document.getElementById('custom-content').value = '';
+    // auto-focus new custom section
+    node.focus();
+  });
+
+  // ---------- Collect data & preview (with updated Experience collection) ----------
+  function collectData() {
+    const data = {};
+    if (!removedSections.has('personal')) {
+      data.personal = {
+        full_name: document.getElementById('full_name').value.trim(),
+        headline: document.getElementById('headline').value.trim(),
+        location: document.getElementById('location').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        phone: document.getElementById('phone').value.trim(),
+        linkedin: document.getElementById('linkedin').value.trim()
+      };
+    }
+
+    if (!removedSections.has('summary')) {
+      const s = document.getElementById('summary').value.trim();
+      if (s) data.summary = s;
+    }
+
+    if (!removedSections.has('education')) {
+      const eds = Array.from(document.querySelectorAll('#education-list .item')).map(node => ({
+        school: node.querySelector('.edu-school')?.value.trim() || '',
+        degree: node.querySelector('.edu-degree')?.value.trim() || '',
+        duration: node.querySelector('.edu-duration')?.value.trim() || '',
+        details: node.querySelector('.edu-details')?.value.trim() || ''
+      })).filter(e => e.school || e.degree || e.duration || e.details);
+      if (eds.length) data.education = eds;
+    }
+
+    // UPDATED: gather experience bullets into description_lines
+    if (!removedSections.has('experience')) {
+      const exs = Array.from(document.querySelectorAll('#experience-list .item')).map(node => {
+        const bullets = Array.from(node.querySelectorAll('.exp-bullet')).map(b => (b.value || '').trim()).filter(Boolean);
+        const description = bullets.join('\n');
+        return {
+          title: node.querySelector('.exp-title')?.value.trim() || '',
+          company: node.querySelector('.exp-company')?.value.trim() || '',
+          duration: node.querySelector('.exp-duration')?.value.trim() || '',
+          description_lines: bullets,
+          description: description
+        };
+      }).filter(e => e.title || e.company || e.duration || (e.description_lines && e.description_lines.length) || e.description);
+      if (exs.length) data.experience = exs;
+    }
+
+    if (!removedSections.has('projects')) {
+      const ps = Array.from(document.querySelectorAll('#projects-list .item')).map(node => {
+        const bullets = Array.from(node.querySelectorAll('.proj-bullet')).map(b => (b.value || '').trim()).filter(Boolean);
+        const description = bullets.join('\n');
+        return {
+          title: node.querySelector('.proj-title')?.value.trim() || '',
+          duration: node.querySelector('.proj-duration')?.value.trim() || '',
+          tech: node.querySelector('.proj-tech')?.value.trim() || '',
+          description_lines: bullets,
+          description: description
+        };
+      }).filter(p => p.title || p.duration || p.tech || (p.description_lines && p.description_lines.length) || p.description);
+      if (ps.length) data.projects = ps;
+    }
+
+    if (!removedSections.has('skills')) {
+      const skillLines = Array.from(document.querySelectorAll('#skills-list .skill-line')).map(s => (s.value || '').trim()).filter(Boolean);
+      if (skillLines.length) data.skills = skillLines;
+      const ach = document.getElementById('achievements').value.trim();
+      if (ach) data.achievements = ach;
+    }
+
+    const customNodes = Array.from(document.querySelectorAll('#custom-sections .custom-section')).map(node => {
+      return {
+        id: node.dataset.customId,
+        title: node.querySelector('.cust-title')?.innerText.trim() || '',
+        content: node.querySelector('.cust-content')?.value.trim() || ''
+      };
+    }).filter(c => c.title || c.content);
+    if (customNodes.length) data.custom_sections = customNodes;
+
+    return data;
+  }
+
+  // UPDATED: render Experience bullets and Skills as <ul>
+  function buildPreview() {
+    const data = collectData();
+    const pv = document.getElementById('visual-preview');
+    let html = '';
+    if (data.personal) {
+      html += `<h2 style="margin:0;font-size:1.25rem">${escapeHtml(data.personal.full_name || '')} <small style="color:var(--muted);font-weight:600"> — ${escapeHtml(data.personal.headline || '')}</small></h2>`;
+      const contactParts = [];
+      if (data.personal.location) contactParts.push(escapeHtml(data.personal.location));
+      if (data.personal.email) contactParts.push(escapeHtml(data.personal.email));
+      if (data.personal.phone) contactParts.push(escapeHtml(data.personal.phone));
+      html += `<div class="muted" style="margin-top:6px">${contactParts.join(' • ')}</div>`;
+    }
+    if (data.summary) {
+      html += `<h3 style="margin-top:12px">Summary</h3><p>${escapeHtml(data.summary)}</p>`;
+    }
+    if (data.education && data.education.length) {
+      html += `<h3 style="margin-top:12px">Education</h3>`;
+      data.education.forEach(e => {
+        html += `<div style="margin-top:6px"><strong>${escapeHtml(e.school)}</strong>${e.degree ? ' — ' + escapeHtml(e.degree) : ''}${e.duration ? '<div class="muted">' + escapeHtml(e.duration) + '</div>' : ''}${e.details ? '<div>' + escapeHtml(e.details) + '</div>' : ''}</div>`;
+      });
+    }
+    if (data.experience && data.experience.length) {
+      html += `<h3 style="margin-top:12px">Experience</h3>`;
+      data.experience.forEach(e => {
+        html += `<div style="margin-top:6px"><strong>${escapeHtml(e.title)}</strong>${e.company ? ' at <em>' + escapeHtml(e.company) + '</em>' : ''}${e.duration ? ' — ' + escapeHtml(e.duration) : ''}`;
+        const bullets = Array.isArray(e.description_lines) ? e.description_lines : (e.description ? e.description.split(/\r?\n/).map(s=>s.trim()).filter(Boolean) : []);
+        if (bullets.length) {
+          html += '<ul style="margin-top:6px">';
+          bullets.forEach(line => { html += `<li>${escapeHtml(line)}</li>`; });
+          html += '</ul>';
+        } else if (e.description) {
+          html += `<div>${escapeHtml(e.description)}</div>`;
+        }
+        html += `</div>`;
+      });
+    }
+    if (data.projects && data.projects.length) {
+      html += `<h3 style="margin-top:12px">Projects</h3>`;
+      data.projects.forEach(p => {
+        html += `<div style="margin-top:6px"><strong>${escapeHtml(p.title)}</strong>${p.tech ? ' — ' + escapeHtml(p.tech) : ''}`;
+        if (p.description_lines && p.description_lines.length) {
+          html += '<ul style="margin-top:6px">';
+          p.description_lines.forEach(line => { html += `<li>${escapeHtml(line)}</li>`; });
+          html += '</ul>';
+        } else if (p.description) {
+          html += `<div>${escapeHtml(p.description)}</div>`;
+        }
+        html += `</div>`;
+      });
+    }
+    if (data.skills && data.skills.length) {
+      html += `<h3 style="margin-top:12px">Skills</h3>`;
+      html += '<ul style="margin-top:6px">';
+      data.skills.forEach(s => { html += `<li>${escapeHtml(s)}</li>`; });
+      html += '</ul>';
+    }
+    if (data.achievements) {
+      html += `<h3 style="margin-top:12px">Achievements</h3><div style="margin-top:6px">${escapeHtml(data.achievements)}</div>`;
+    }
+    if (data.custom_sections && data.custom_sections.length) {
+      data.custom_sections.forEach(c => {
+        if (c.title || c.content) {
+          html += `<h3 style="margin-top:12px">${escapeHtml(c.title)}</h3><div style="margin-top:6px">${escapeHtml(c.content)}</div>`;
+        }
+      });
+    }
+    if (!html) html = '<div class="muted">No content to preview. Add sections or restore removed sections.</div>';
+    pv.innerHTML = html;
+    document.getElementById('json-preview').innerText = JSON.stringify(data, null, 2);
+  }
+
+  // Save resume (unchanged)
+  document.getElementById('save-resume').addEventListener('click', async ()=> {
+    const title = document.getElementById('resume_title').value.trim() || 'My Resume';
+    const data = collectData();
+    if (Object.keys(data).length === 0) {
+      if (!confirm('You are saving an empty resume. Continue?')) return;
+    }
+    const payload = { title, data };
+    const resumeId = getResumeIdFromPath(); // if editing
+    if (resumeId) payload.resume_id = resumeId;
+    const csrftoken = getCookie('csrftoken');
+    try {
+      const res = await fetch("{% url 'save_resume_api' %}", {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        const j = await res.json();
+        alert('Saved ✓');
+        window.location.href = '/jobs/resume/' + j.resume_id + '/';
+      } else {
+        alert('Save failed. Check console.');
+        console.error(await res.text());
+      }
+    } catch (e) {
+      alert('Save failed. See console.');
+      console.error(e);
+    }
+  });
+
+  // CSRF cookie helper
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  // detect resume id from path (unchanged)
+  function getResumeIdFromPath() {
+    const m = window.location.pathname.match(/\/jobs\/resume\/edit\/(\d+)\/?/);
+    return m ? m[1] : null;
+  }
+
+  // Fetch resume JSON and prefill (unchanged)
+  async function fetchResumeAndPrefill() {
+    const resumeId = getResumeIdFromPath();
+    if (!resumeId) return;
+    try {
+      const res = await fetch('/jobs/api/resume/' + resumeId + '/');
+      if (!res.ok) {
+        console.error('Failed to fetch resume JSON', await res.text());
+        return;
+      }
+      const j = await res.json();
+      prefill(j.data || {});
+      document.getElementById('resume_title').value = j.title || '';
+      document.getElementById('page-title').innerText = 'Edit Resume';
+    } catch (err) {
+      console.error('Error fetching resume', err);
+    }
+  }
+
+  function prefill(data) {
+    if (!data) return;
+    const p = data.personal || {};
+    document.getElementById('full_name').value = p.full_name || '';
+    document.getElementById('headline').value = p.headline || '';
+    document.getElementById('location').value = p.location || '';
+    document.getElementById('email').value = p.email || '';
+    document.getElementById('phone').value = p.phone || '';
+    document.getElementById('linkedin').value = p.linkedin || '';
+    document.getElementById('summary').value = data.summary || '';
+    document.getElementById('education-list').innerHTML = '';
+    document.getElementById('experience-list').innerHTML = '';
+    document.getElementById('projects-list').innerHTML = '';
+    (data.education || []).forEach(e => document.getElementById('education-list').appendChild(createEducationItem(e)));
+    (data.experience || []).forEach(e => document.getElementById('experience-list').appendChild(createExperienceItem(e)));
+    (data.projects || []).forEach(p => {
+      const projNode = createProjectItem({
+        title: p.title || '',
+        duration: p.duration || '',
+        tech: p.tech || '',
+        description_lines: Array.isArray(p.description_lines) ? p.description_lines : (p.description ? p.description.split(/\r?\n/).map(s=>s.trim()).filter(Boolean) : [])
+      });
+      document.getElementById('projects-list').appendChild(projNode);
+    });
+    document.getElementById('skills-list').innerHTML = '';
+    (data.skills || []).forEach(s => addSkillLine(s));
+    if ((data.skills || []).length === 0) addSkillLine('');
+    document.getElementById('achievements').value = data.achievements || '';
+    document.getElementById('custom-sections').innerHTML = '';
+    (data.custom_sections || []).forEach(c => {
+      const n = createCustomSection(c.title || '', c.content || '');
+      if (c.id) n.dataset.customId = c.id;
+      document.getElementById('custom-sections').appendChild(n);
+    });
+    buildPreview();
+  }
+
+  // Initialization
+  (function init() {
+    if (!document.querySelector('#education-list .item') && !removedSections.has('education')) document.getElementById('education-list').appendChild(createEducationItem());
+    if (!document.querySelector('#experience-list .item') && !removedSections.has('experience')) document.getElementById('experience-list').appendChild(createExperienceItem());
+    if (!document.querySelector('#projects-list .item') && !removedSections.has('projects')) document.getElementById('projects-list').appendChild(createProjectItem());
+    if (!document.querySelector('#skills-list .skill-line') && !removedSections.has('skills')) addSkillLine('');
+    fetchResumeAndPrefill();
+    renderRemovedList();
+    buildPreview();
+
+    // Wire custom-section keyboard navigation: up/down arrows jump custom sections
+    document.getElementById('custom-sections').addEventListener('keydown', (e)=>{
+      if (e.key === 'PageDown') document.getElementById('next-step-bottom').click();
+      if (e.key === 'PageUp') document.getElementById('prev-step-bottom').click();
+    });
+
+    // Also ensure bottom prev/next visibility mirrors top controls at start
+    showStep(1);
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,150 @@
+{# resume_classic_inner.html - fragment (table-based two-column, professional/classic) #}
+{% with rd=data|default:resume.data %}
+<style>
+  /* Classic / professional resume (fragment) */
+  @page { size: A4; margin: 12mm 14mm 12mm 14mm; }
+  html,body{font-family: "Georgia", "Times New Roman", serif; color:#111; font-size:10.5pt; line-height:1.28;}
+  .container{max-width:800px;margin:0 auto;}
+  .header{text-align:center;padding-bottom:8px;}
+  .name{font-size:22pt;font-weight:700;color:#0b3d91;margin:0;}
+  .headline{font-size:10pt;color:#444;margin-top:4px;}
+  .contact{font-size:9.2pt;color:#333;margin-top:6px;}
+  .contact span{display:inline-block;margin:0 8px;}
+
+  /* table layout (reliable in PDF engines) */
+  .layout{width:100%;border-collapse:collapse;margin-top:12px;}
+  .left{width:30%;vertical-align:top;padding-right:12px;font-size:9.6pt;color:#333;}
+  .right{width:70%;vertical-align:top;font-size:10pt;color:#111;}
+
+  .section{margin-bottom:12px;page-break-inside:avoid;}
+  .section-title{font-weight:700;color:#0b3d91;font-size:10pt;margin-bottom:6px;text-transform:uppercase;border-bottom:1px solid #eee;padding-bottom:4px;}
+  .item-title{font-weight:700;font-size:10pt;margin:0 0 3px 0;}
+  .item-sub{color:#666;font-size:9pt;margin-bottom:6px;}
+  .para{font-size:10pt;margin:4px 0 8px 0;white-space:pre-wrap;text-align:justify;}
+  .bullets{margin:6px 0 8px 18px;}
+  .bullets li{margin-bottom:4px;}
+  .skill-pill{display:inline-block;padding:3px 6px;margin:3px 4px 3px 0;border-radius:3px;border:1px solid #e6e6e6;font-size:9pt;background:#f9f9fb;}
+  .meta-right{font-size:9pt;color:#666;text-align:right;white-space:nowrap;}
+  .small{font-size:9pt;color:#666;margin-top:8px;}
+</style>
+
+<div class="container">
+  <div class="header">
+    {% if rd.personal and rd.personal.full_name %}
+      <div class="name">{{ rd.personal.full_name }}</div>
+    {% else %}
+      <div class="name">{{ resume.owner.get_full_name|default:resume.owner.username }}</div>
+    {% endif %}
+    {% if rd.personal and rd.personal.headline %}
+      <div class="headline">{{ rd.personal.headline }}</div>
+    {% endif %}
+    <div class="contact">
+      {% if rd.personal and rd.personal.email %}<span>{{ rd.personal.email }}</span>{% endif %}
+      {% if rd.personal and rd.personal.phone %}<span>{{ rd.personal.phone }}</span>{% endif %}
+      {% if rd.personal and rd.personal.linkedin %}<span>{{ rd.personal.linkedin }}</span>{% endif %}
+      {% if rd.personal and rd.personal.location %}<span>{{ rd.personal.location }}</span>{% endif %}
+    </div>
+  </div>
+
+  <table class="layout">
+    <tr>
+      <td class="left">
+        {% if rd.skills and rd.skills|length > 0 %}
+          <div class="section">
+            <div class="section-title">Skills</div>
+            <div>
+              {% for s in rd.skills|slice:":24" %}
+                <span class="skill-pill">{{ s }}</span>
+              {% endfor %}
+              {% if rd.skills|length > 24 %}
+                <div class="small">+{{ rd.skills|length|add:"-24" }} more</div>
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
+
+        {% if rd.education and rd.education|length > 0 %}
+          <div class="section">
+            <div class="section-title">Education</div>
+            {% for e in rd.education|slice:":3" %}
+              <div style="margin-bottom:8px;">
+                <div class="item-title">{{ e.school }}</div>
+                <div class="item-sub">{% if e.degree %}{{ e.degree }}{% endif %}{% if e.details %} • {{ e.details }}{% endif %}</div>
+                {% if e.duration %}<div class="small">{{ e.duration }}</div>{% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% if rd.achievements %}
+          <div class="section">
+            <div class="section-title">Achievements</div>
+            <div class="para">{{ rd.achievements|truncatechars:600|linebreaksbr }}</div>
+          </div>
+        {% endif %}
+      </td>
+
+      <td class="right">
+        {% if rd.summary %}
+          <div class="section">
+            <div class="section-title">Profile</div>
+            <div class="para">{{ rd.summary|truncatechars:600|linebreaksbr }}</div>
+          </div>
+        {% endif %}
+
+        {% if rd.experience and rd.experience|length > 0 %}
+          <div class="section">
+            <div class="section-title">Experience</div>
+            {% for ex in rd.experience|slice:":6" %}
+              <div style="margin-bottom:10px;page-break-inside:avoid;">
+                <div style="overflow:hidden;">
+                  <div style="float:left;width:78%;">
+                    <div class="item-title">{% if ex.title %}{{ ex.title }}{% else %}{{ ex.company }}{% endif %}</div>
+                    <div class="item-sub">{% if ex.company %}{{ ex.company }}{% endif %}{% if ex.location %} • {{ ex.location }}{% endif %}</div>
+                  </div>
+                  <div style="float:right;width:20%;" class="meta-right">{% if ex.duration %}{{ ex.duration }}{% elif ex.start_date %}{{ ex.start_date }}{% endif %}{% if ex.end_date %} – {{ ex.end_date }}{% endif %}</div>
+                  <div style="clear:both;"></div>
+                </div>
+                {% if ex.bullets or ex.description_lines %}
+                  <ul class="bullets">
+                    {% for b in ex.bullets|default:ex.description_lines|slice:":5" %}
+                      {% if b %}<li>{{ b|truncatechars:200 }}</li>{% endif %}
+                    {% endfor %}
+                  </ul>
+                {% elif ex.description %}
+                  <div class="para">{{ ex.description|truncatechars:400|linebreaksbr }}</div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        {% if rd.projects and rd.projects|length > 0 %}
+          <div class="section">
+            <div class="section-title">Projects</div>
+            {% for p in rd.projects|slice:":4" %}
+              <div style="margin-bottom:8px;">
+                <div class="item-title">{{ p.title }}</div>
+                {% if p.tech %}<div class="item-sub">{{ p.tech }}</div>{% endif %}
+                {% if p.description_lines %}
+                  <ul class="bullets">
+                    {% for ln in p.description_lines|slice:":4" %}
+                      {% if ln %}<li>{{ ln|truncatechars:180 }}</li>{% endif %}
+                    {% endfor %}
+                  </ul>
+                {% elif p.description %}
+                  <div class="para">{{ p.description|truncatechars:300|linebreaksbr }}</div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </td>
+    </tr>
+  </table>
+
+  <div style="margin-top:8px;font-size:9pt;color:#666;">
+    {% if resume.title %}{{ resume.title }}{% endif %}{% if resume.updated_at %} — Updated: {{ resume.updated_at|date:"Y-m-d" }}{% endif %}
+  </div>
+</div>
+{% endwith %}

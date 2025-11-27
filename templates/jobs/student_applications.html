@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}My Applications — Nexty{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --primary: #0b66c3;
+    --accent: #06b6d4;
+    --success: #16a34a;
+    --danger: #dc2626;
+    --muted: #6b7280;
+    --bg: #f9fafb;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --radius: 10px;
+    --shadow: 0 6px 18px rgba(0,0,0,0.06);
+  }
+
+  body {
+    background: var(--bg);
+    font-family: Inter, system-ui, sans-serif;
+  }
+
+  main {
+    max-width: 900px;
+    margin: 40px auto;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 32px;
+    box-shadow: var(--shadow);
+  }
+
+  h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    text-align: center;
+  }
+
+  .application-card {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    background: var(--card);
+    margin-bottom: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .application-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  }
+
+  .job-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0;
+  }
+
+  .job-company {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+  }
+
+  .app-meta {
+    color: var(--text);
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: capitalize;
+  }
+
+  .status-badge.applied { background: #e0f2fe; color: var(--primary); }
+  .status-badge.shortlisted { background: #dcfce7; color: var(--success); }
+  .status-badge.rejected { background: #fee2e2; color: var(--danger); }
+  .status-badge.pending { background: #fef9c3; color: #854d0e; }
+
+  .ats-badge {
+    background: #f1f5f9;
+    color: var(--muted);
+    padding: 3px 8px;
+    border-radius: 9999px;
+    font-size: 0.85rem;
+    margin-left: 8px;
+  }
+
+  .resume-links a {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .resume-links a:hover { text-decoration: underline; }
+
+  .missing-keywords {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-top: 6px;
+  }
+
+  .no-apps {
+    text-align: center;
+    color: var(--muted);
+    background: #f3f4f6;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-top: 20px;
+  }
+
+  .no-apps a {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .no-apps a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 640px) {
+    main {
+      padding: 20px;
+    }
+    .application-card {
+      padding: 16px;
+    }
+  }
+</style>
+
+<main>
+  <h2>My Applications</h2>
+
+  {% if applications %}
+    {% for a in applications %}
+      <div class="application-card">
+        <div class="job-title">{{ a.job.title }}</div>
+        <div class="job-company">{{ a.job.company }}</div>
+
+        <div class="app-meta">
+          <strong>Applied:</strong> {{ a.applied_at|date:"Y-m-d H:i" }}
+          <span class="status-badge {{ a.status|lower|default:'pending' }}">
+            {{ a.get_status_display }}
+          </span>
+          <span class="ats-badge">ATS: {{ a.ats_score|default:"N/A" }}%</span>
+        </div>
+
+        <div class="resume-links">
+          {% if a.resume %}
+            Resume: <a href="{% url 'resume_detail' a.resume.id %}">{{ a.resume.title }}</a>
+          {% elif a.uploaded_resume %}
+            Uploaded: <a href="{{ a.uploaded_resume.url }}">Download</a>
+          {% endif %}
+        </div>
+
+        <div class="missing-keywords">
+          <strong>Missing keywords:</strong>
+          {% if a.missing_keywords %}
+            {{ a.missing_keywords|join:", " }}
+          {% else %}
+            <span class="muted">None</span>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="no-apps">
+      You haven’t applied to any jobs yet.  
+      <a href="{% url 'job_list' %}">Browse jobs</a>
+    </div>
+  {% endif %}
+</main>
+{% endblock %}

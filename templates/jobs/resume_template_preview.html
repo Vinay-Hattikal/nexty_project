@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Resume Preview — {{ resume.title }}{% endblock %}
+
+{% block content %}
+<style>
+/* Wrapper / header */
+.preview-header {
+  max-width:1100px;
+  margin:28px auto 18px;
+  padding:18px 22px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  background:#fff;
+  border:1px solid #eef3fb;
+  border-radius:10px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.04);
+}
+.preview-header h2 { margin:0; color:#0b66c3; font-weight:700; font-size:1.15rem; }
+.preview-actions { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+.select-template { padding:8px 10px; border-radius:8px; border:1px solid #d6dbe5; }
+
+/* resume card */
+.preview-container { display:flex; justify-content:center; padding:18px; }
+.resume-wrap {
+  width:880px;
+  box-sizing:border-box;
+  background:#fff;
+  border:1px solid #eef3fb;
+  border-radius:10px;
+  padding:20px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.04);
+}
+
+/* buttons */
+.button { padding:8px 12px; border-radius:8px; font-weight:600; cursor:pointer; border:0; }
+.button-primary { background:#0b66c3; color:#fff; }
+.button-ghost { background:#eef6ff; color:#0b66c3; border:1px solid #cfe0f8; }
+
+/* small */
+.template-indicator { color:#666; font-size:0.92rem; margin-left:8px; }
+.debug-note { color:#666; font-size:0.9rem; margin-left:6px; text-decoration:underline; cursor:pointer; }
+@media (max-width:980px){ .resume-wrap{ width:100%; padding:16px } .preview-header{ margin:12px } }
+</style>
+
+<div class="preview-header" role="region" aria-label="Resume preview header">
+  <div>
+    <h2>Resume Preview — {{ resume.title }}</h2>
+    <div class="template-indicator">Showing: <strong>{{ template_key|default:"modern"|capfirst }}</strong></div>
+  </div>
+
+  <div class="preview-actions" role="toolbar">
+    <form id="preview-switch" method="get" action="{% url 'resume_preview' resume.id %}" style="display:inline;">
+      <label for="template-select" style="margin-right:6px;font-weight:600;color:#555;">Template:</label>
+      <select id="template-select" name="template" class="select-template" aria-label="Choose template">
+        <option value="modern" {% if template_key == 'modern' %}selected{% endif %}>Modern</option>
+        <option value="classic" {% if template_key == 'classic' %}selected{% endif %}>Classic</option>
+        <option value="minimal" {% if template_key == 'minimal' %}selected{% endif %}>Minimal</option>
+      </select>
+      <noscript><button class="button button-ghost" type="submit">Switch</button></noscript>
+    </form>
+
+    <button id="download-btn" class="button button-primary" title="Download PDF">⬇ Download PDF</button>
+
+    <a href="{% url 'edit_resume' resume.id %}">
+      <button type="button" class="button button-ghost">✎ Edit</button>
+    </a>
+
+    <!-- <span id="debug-link" class="debug-note" title="Open debug HTML in new tab">Debug HTML</span> -->
+  </div>
+</div>
+
+<div class="preview-container">
+  <div class="resume-wrap" id="resume-wrap" role="main" aria-label="Resume preview content">
+    {# IMPORTANT: view must pass variable `template` with the fragment path. #}
+    {% include template %}
+  </div>
+</div>
+
+<script>
+(function(){
+  const sel = document.getElementById('template-select');
+  const previewForm = document.getElementById('preview-switch');
+  const downloadBtn = document.getElementById('download-btn');
+  const debugLink = document.getElementById('debug-link');
+
+  // On template change, submit preview form (fallback works without JS)
+  sel && sel.addEventListener('change', function(){ previewForm.submit(); });
+
+  // Build base URLs
+  const previewBase = "{% url 'resume_preview' resume.id %}";
+  const downloadBase = "{% url 'resume_download' resume.id %}";
+
+  downloadBtn && downloadBtn.addEventListener('click', function(){
+    const t = sel ? sel.value : "{{ template_key|default:'modern' }}";
+    // include force=1 to bypass cached pdf; include timestamp to prevent browser caching
+    const url = downloadBase + "?template=" + encodeURIComponent(t) + "&force=1&_ts=" + Date.now();
+    window.open(url, '_blank');
+  });
+
+  debugLink && debugLink.addEventListener('click', function(){
+    const t = sel ? sel.value : "{{ template_key|default:'modern' }}";
+    const url = downloadBase + "?template=" + encodeURIComponent(t) + "&debug_html=1";
+    window.open(url, '_blank');
+  });
+})();
+</script>
+{% endblock %}

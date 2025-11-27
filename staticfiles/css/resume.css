@@ -1,0 +1,138 @@
+/* static/css/resume.css - PDF-friendly resume stylesheet */
+
+/* Page settings for print */
+@page { margin: 24pt; }
+
+/* Base typography */
+html, body {
+  font-family: "DejaVu Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  font-size: 11pt;
+  color: #222;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Outer container */
+.container {
+  width: 760px;        /* explicitly set width for PDF */
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+/* Header */
+.header {
+  display: block;
+  overflow: visible;
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+  border-bottom: 2px solid #e7eef9;
+}
+.name {
+  font-size: 18pt;
+  font-weight: 700;
+  color: #111;
+}
+.title {
+  font-size: 10.5pt;
+  color: #333;
+  margin-top: 4px;
+}
+
+/* Contact aligned to right in screen, safe for PDF (keeps block-level) */
+.contact {
+  text-align: right;
+  font-size: 9pt;
+  color: #333;
+}
+
+/* Section blocks */
+.section {
+  margin-bottom: 14px;
+  clear: both; /* ensure each section starts below floats */
+}
+.section h3 {
+  background: #f2f6fb;
+  color: #0b66c3;
+  padding: 6px 8px;
+  margin: 0 0 8px 0;
+  font-size: 12pt;
+  border-radius: 3px;
+  display: block;
+}
+
+/* Two-column layout (float-based for PDF engines) */
+.two-col {
+  /* don't rely on flex here for PDF; floats are more portable */
+  display: block;
+  overflow: visible;
+}
+.left {
+  float: left;
+  width: 62%;
+  box-sizing: border-box;
+  padding-right: 12px;
+}
+.right {
+  float: right;
+  width: 36%;
+  box-sizing: border-box;
+  padding-left: 12px;
+}
+
+/* clearfix to ensure parent wraps floats if needed */
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
+/* Items */
+.item { margin-bottom: 8px; }
+.item-title { font-weight:700; font-size:11pt; color:#111; margin-bottom:2px; }
+.item-sub { font-size:9.5pt; color:#444; margin-bottom:6px; }
+
+/* Skill badges */
+.skill-badge {
+  display:inline-block;
+  padding:4px 8px;
+  margin:4px 4px 0 0;
+  background:#eef6ff;
+  border-radius:4px;
+  color:#0b66c3;
+  font-size:9pt;
+}
+
+/* Muted/smaller */
+.small-muted, .muted { color:#666; font-size:9pt; }
+
+/* Paragraph/text blocks — important */
+.r-text {
+  margin: 6px 0 0 0;       /* separate from preceding title/subtitle */
+  text-align: justify;     /* nice even edges in PDF */
+  font-size: 11pt;
+  line-height: 1.45;
+  white-space: pre-wrap;   /* preserve newlines from the builder but allow wrapping */
+  word-break: break-word;  /* break long tokens/URLs */
+  overflow-wrap: anywhere;
+}
+
+/* Education/achievements small tweaks */
+.item-sub strong { display:block; }
+.edu-duration, .muted { margin-top:4px; }
+
+/* Small-screen fallbacks (preview only) */
+@media screen and (max-width:900px) {
+  .container { width: auto; padding: 8px; }
+  .left, .right { float: none; width: 100%; padding: 0; }
+  .contact { text-align: left; margin-top: 8px; }
+}
+
+/* Ensure headings are not tiny in PDF */
+h1,h2,h3,h4,h5 { page-break-after: avoid; }
+
+/* Prevent widows/orphans in paragraphs where supported */
+p { orphans: 2; widows: 2; }
+
+/* Keep small-print list styling consistent */
+ul, ol { margin: 6px 0 6px 18px; padding: 0; }

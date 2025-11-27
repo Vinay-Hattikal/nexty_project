@@ -1,0 +1,412 @@
+{% extends 'base.html' %}
+
+{% load static %}
+{% block title %}NextCareer — Campus Hiring & Career Launchpad{% endblock %}
+
+{% block head %}
+<!-- Page-specific CSS (kept inside home.html as requested) -->
+<style>
+  :root{
+  /* theme (kept --primary unchanged) */
+  --bg: #f7fbff;
+  --card: #ffffff;
+  --primary: #0b66c3;
+  --primary-600: #0954a8;
+  --accent: #06b6d4;
+  --muted: #6b7280;
+  --text: #06263f;
+  --radius: 12px;
+  --shadow-sm: 0 6px 18px rgba(8,40,80,0.04);
+  --shadow-md: 0 12px 30px rgba(8,40,80,0.06);
+  --ease: cubic-bezier(.2,.9,.2,1);
+  --gap: 18px;
+  --max-w: 1150px;
+  --motion: 220ms;
+  --focus-ring: 3px solid rgba(11,102,195,0.12);
+}
+
+/* reset / base */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial, sans-serif;
+  -webkit-font-smoothing:antialiased;
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.45;
+  -moz-osx-font-smoothing:grayscale;
+}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;height:auto;display:block}
+
+/* container utility */
+.container{max-width:var(--max-w);margin:0 auto;padding:0 18px}
+
+/* ---------------- NAV (home-specific polish) ---------------- */
+header{position:sticky;top:18px;z-index:60;padding:0 0 8px}
+.site-nav .nav-inner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.80));
+  padding:10px 18px;
+  border-radius:999px;
+  box-shadow:var(--shadow-sm);
+  backdrop-filter: blur(6px) saturate(110%);
+  border:1px solid rgba(8,40,80,0.03);
+}
+.brand{font-weight:800;color:var(--primary);text-decoration:none;font-size:1.1rem}
+.nav-links{display:flex;gap:10px;align-items:center}
+.nav-links li{display:inline-block;margin-right:8px}
+.nav-links a{color:#334155;padding:8px 10px;border-radius:10px;transition:transform var(--motion) var(--ease), background var(--motion) var(--ease)}
+.nav-links a:hover, .nav-links a:focus{background:rgba(14,83,175,0.06);transform:translateY(-2px);color:var(--primary)}
+
+.nav-actions{display:flex;align-items:center;gap:10px}
+.nav-welcome{color:var(--muted);font-weight:600}
+.nav-btn{background:rgba(14,83,175,0.06);padding:8px 12px;border-radius:10px;color:var(--primary);font-weight:700}
+.nav-link{color:var(--primary);font-weight:700}
+.nav-cta{background:var(--primary);color:#fff;padding:8px 14px;border-radius:999px;font-weight:700;box-shadow:0 8px 20px rgba(11,102,195,0.12);transition:transform var(--motion) var(--ease), box-shadow var(--motion) var(--ease)}
+.nav-cta:hover,.nav-cta:focus{transform:translateY(-3px);box-shadow:var(--shadow-md)}
+
+/* menu toggle / mobile */
+.menu-toggle{display:none;background:none;border:0;font-size:20px;padding:6px;cursor:pointer;border-radius:8px}
+.menu-toggle:focus{outline:none;box-shadow:var(--focus-ring)}
+.mobile-menu{display:none;padding:12px 18px;background:var(--card);border-radius:12px;margin:10px auto;max-width:var(--max-w);box-shadow:var(--shadow-md);border:1px solid rgba(8,40,80,0.03)}
+.mobile-menu a{display:block;padding:8px 6px;color:var(--text);border-radius:8px}
+.mobile-cta{display:inline-block;background:var(--primary);color:#fff;padding:8px 12px;border-radius:999px}
+
+/* ---------------- MESSAGES ---------------- */
+.messages{list-style:none;padding:8px 18px;max-width:var(--max-w);margin:8px auto;display:flex;flex-direction:column;gap:8px}
+.message{
+  background:var(--card);
+  padding:12px 14px;
+  border-radius:10px;
+  box-shadow:var(--shadow-sm);
+  border-left:4px solid rgba(11,102,195,0.10);
+  color:var(--primary-600);
+  font-weight:600;
+}
+
+/* ---------------- HERO ---------------- */
+.hero{
+  padding:48px 0 32px;
+  min-height:52vh;
+  display:flex;
+  align-items:center;
+  position:relative;
+  overflow:visible;
+}
+.hero-inner{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:24px;
+  align-items:center;
+  width:100%;
+  max-width:var(--max-w);
+  margin:0 auto;
+  padding:16px;
+}
+.badge{
+  display:inline-block;padding:8px 12px;background:linear-gradient(180deg,#e8f7ff,#f0fbff);
+  color:var(--primary);border-radius:999px;font-weight:800;margin-bottom:18px;box-shadow:0 8px 18px rgba(11,102,195,0.06)
+}
+.hero-title{
+  font-size:clamp(1.6rem,4vw,3rem);
+  line-height:1.02;
+  margin:6px 0 12px;
+  font-weight:800;
+  color:var(--text);
+  letter-spacing:-0.02em;
+}
+.hero-title .accent{color:var(--accent)}
+.hero-sub{max-width:60ch;color:var(--muted);margin-bottom:18px;font-size:1.02rem}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap}
+.btn{
+  display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:12px 18px;font-weight:700;border:0;cursor:pointer;
+  transition:transform var(--motion) var(--ease), box-shadow var(--motion) var(--ease), opacity var(--motion) var(--ease);
+}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 14px 34px rgba(11,102,195,0.12)}
+.btn-primary:hover,.btn-primary:focus{transform:translateY(-3px);box-shadow:var(--shadow-md)}
+.btn-secondary{background:#fff;border:1px solid rgba(8,40,80,0.04);color:var(--primary)}
+
+/* features inline */
+.features-inline{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap}
+.feature-pill{background:var(--card);border-radius:12px;padding:12px 14px;box-shadow:var(--shadow-sm);min-width:140px;font-weight:700}
+
+/* hide hero-right (image) as requested */
+.hero-right{display:none}
+
+/* ---------------- FEATURES GRID ---------------- */
+.features{padding:44px 0;background:transparent}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px}
+.feature-card{
+  background:var(--card);
+  padding:18px;
+  border-radius:12px;
+  box-shadow:var(--shadow-md);
+  transition:transform var(--motion) var(--ease), box-shadow var(--motion) var(--ease), opacity var(--motion) var(--ease);
+  transform:translateY(0);
+  opacity:1;
+  min-height:140px;
+}
+.feature-card:hover,.feature-card:focus-within{transform:translateY(-8px);box-shadow:0 30px 60px rgba(8,40,80,0.08)}
+.card-icon{width:48px;height:48px;border-radius:12px;background:linear-gradient(180deg,#eaf6ff,#f7fbff);display:inline-flex;align-items:center;justify-content:center;margin-bottom:10px}
+
+/* reveal helper classes (used by your JS IO) */
+.initial-hidden{opacity:0;transform:translateY(8px);will-change:transform,opacity;transition:opacity var(--motion) var(--ease), transform var(--motion) var(--ease)}
+.initial-hidden.is-visible{opacity:1;transform:none}
+
+/* ---------------- HOW IT WORKS ---------------- */
+.how-it-works{padding:42px 0;background:transparent}
+.steps{max-width:820px;margin:0 auto;display:grid;gap:18px}
+.step{display:flex;gap:16px;align-items:flex-start}
+.step-number{width:44px;height:44px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0}
+.step-content h3{margin:0 0 6px;font-size:1.125rem}
+
+/* ---------------- TESTIMONIALS / CAROUSEL ---------------- */
+.testimonials{padding:42px 0;background:linear-gradient(135deg,var(--primary) 0%,var(--accent) 100%);color:#fff;border-radius:12px}
+.carousel{max-width:820px;margin:0 auto;position:relative;overflow:hidden;padding:12px}
+.carousel-track{display:flex;transition:transform .6s ease-in-out;will-change:transform}
+.testimonial{flex:0 0 100%;padding:20px;background:rgba(255,255,255,0.06);border-radius:12px;margin:0 8px;min-height:160px}
+.carousel-controls{position:absolute;top:50%;left:0;right:0;display:flex;justify-content:space-between;transform:translateY(-50%);pointer-events:none;padding:0 8px}
+.carousel-btn{pointer-events:all;background:#fff;border-radius:999px;border:0;width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:var(--primary);box-shadow:0 8px 20px rgba(0,0,0,0.08)}
+.dots{display:flex;justify-content:center;gap:8px;margin-top:14px}
+.dot{width:10px;height:10px;border-radius:999px;background:rgba(255,255,255,0.45);cursor:pointer}
+.dot.active{background:#fff;transform:scale(1.2)}
+
+/* ---------------- FINAL CTA / FOOTER ---------------- */
+.final-cta{padding:36px 0;background:var(--card);border-radius:12px;margin:24px 0;box-shadow:var(--shadow-sm);text-align:center}
+.site-footer{padding:28px 0;text-align:center;color:var(--muted)}
+
+/* ---------------- RESPONSIVE RULES ---------------- */
+@media (max-width: 980px){
+  .hero-inner{gap:18px}
+}
+@media (max-width: 820px){
+  .hero-inner{padding:8px}
+  .nav-links{display:none}
+  .menu-toggle{display:block}
+  .mobile-menu{display:block}
+  .features-grid{grid-template-columns:1fr}
+  .carousel-controls{display:none} /* simplify controls on small screens */
+}
+
+/* ---------------- ACCESSIBILITY ---------------- */
+/* focus rings */
+:focus{outline:none}
+:focus-visible{outline:var(--focus-ring);outline-offset:3px;border-radius:8px}
+
+/* respect reduced motion */
+@media (prefers-reduced-motion: reduce){
+  :root{ --motion: 1ms }
+  .initial-hidden, .feature-card, .carousel-track, .nav-cta, .btn{ transition:none !important; animation:none !important; transform:none !important }
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+  <section class="hero" aria-labelledby="hero-heading" role="region">
+    <div class="container hero-inner">
+      <div class="hero-left">
+        <div class="badge">Working for your success</div>
+        <h1 id="hero-heading" class="hero-title">Your <span class="accent">Campus</span> Career Launchpad.</h1>
+        <p class="hero-sub">NextCareer streamlines the student-to-pro hiring process. Build a standout resume, track applications, Prepare for role based Interviews and connect directly with top recruiters.</p>
+
+        <div class="hero-ctas">
+          {% if user.is_authenticated %}
+            <a class="btn btn-primary" href="{% url 'dashboard-redirect' %}">Go to Dashboard</a>
+            <a class="btn btn-secondary" href="{% url 'dashboard-redirect' %}">Watch Demo</a>
+          {% else %}
+            <a class="btn btn-primary" href="{% url 'signup' %}">Start Your Free Profile</a>
+            <a class="btn btn-secondary" href="{% url 'login' %}">Watch Demo</a>
+          {% endif %}
+        </div>
+
+        <div class="features-inline" aria-hidden="false">
+          <div class="feature-pill">Student Profiles</div>
+          <div class="feature-pill">HR Dashboard</div>
+        </div>
+      </div>
+
+      {# hero-right removed to eliminate images/overlay and extra space #}
+    </div>
+  </section>
+
+  <section id="features" class="features" aria-labelledby="features-heading">
+    <div class="container">
+      <h2 id="features-heading" style="text-align:center;font-size:1.6rem;margin-bottom:18px">Tools to Get Hired Faster</h2>
+
+      <div class="features-grid">
+        <article class="feature-card initial-hidden" data-delay="0">
+          <div class="card-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/></svg></div>
+          <h3>Resume Builder Pro</h3>
+          <p class="muted">AI-friendly templates, keywords and PDF export to pass ATS filters.</p>
+        </article>
+
+        <article class="feature-card initial-hidden delay-1" data-delay="150">
+          <div class="card-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/></svg></div>
+          <h3>Tracker & Alerts</h3>
+          <p class="muted">Centralize applications and get deadline reminders.</p>
+        </article>
+
+        <article class="feature-card initial-hidden delay-2" data-delay="300">
+          <div class="card-icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"><path d="M12 20V10"/></svg></div>
+          <h3>Hiring Analytics</h3>
+          <p class="muted">Insights into how your profile performs and what recruiters want.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="how-it-works" class="how-it-works" aria-labelledby="how-heading">
+    <div class="container">
+      <h2 id="how-heading" style="text-align:center;font-size:1.6rem;margin-bottom:18px">The Simple Path to Your First Role</h2>
+      <div class="steps">
+        <article class="step initial-hidden" data-delay="0">
+          <div class="step-number">1</div>
+          <div class="step-content"><h3>Build Your Profile</h3><p class="muted">Guided prompts ensure your profile is recruiter-ready.</p></div>
+        </article>
+
+        <article class="step initial-hidden delay-1" data-delay="150">
+          <div class="step-number">2</div>
+          <div class="step-content"><h3>Discover & Apply</h3><p class="muted">Exclusive campus drives and easy apply flows.</p></div>
+        </article>
+
+        <article class="step initial-hidden delay-2" data-delay="300">
+          <div class="step-number">3</div>
+          <div class="step-content"><h3>Get Noticed</h3><p class="muted">Verified profiles reach recruiters actively hiring grads.</p></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="testimonials" class="testimonials" aria-labelledby="testimonials-heading">
+    <div class="container">
+      <h2 id="testimonials-heading" style="text-align:center;font-size:1.6rem;margin-bottom:18px;color:#fff">Success Stories</h2>
+
+      <div class="carousel" aria-roledescription="carousel" aria-label="Student testimonials">
+        <div class="carousel-track" id="carousel-track" style="transform: translateX(0%);">
+          <div class="testimonial" role="group" aria-roledescription="slide" aria-label="1 of 3">
+            <blockquote style="font-style:italic;margin:0 0 10px">"Finally, a platform that understands students, Clean and simple to use."</blockquote>
+            <footer><strong>Sashwat</strong><div class="muted"> CSE BEC, 2025</div></footer>
+          </div>
+          <div class="testimonial" role="group" aria-roledescription="slide" aria-label="2 of 3">
+            <blockquote style="font-style:italic;margin:0 0 10px">"Easy to browse, apply jobs"</blockquote>
+            <footer><strong>OM</strong><div class="muted">AIML 2025</div></footer>
+          </div>
+          <div class="testimonial" role="group" aria-roledescription="slide" aria-label="3 of 3">
+            <blockquote style="font-style:italic;margin:0 0 10px">"Instant ATS score calculator while applying jobs is very useful to get hired faster."</blockquote>
+            <footer><strong>Gangadhar</strong><div class="muted">KLE Hubli 2025</div></footer>
+          </div>
+        </div>
+
+        <div class="carousel-controls" aria-hidden="false">
+          <button id="prev-btn" class="carousel-btn" aria-label="Previous">‹</button>
+          <button id="next-btn" class="carousel-btn" aria-label="Next">›</button>
+        </div>
+
+        <div class="dots" id="dots" role="tablist" aria-label="Testimonial slides"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="final-cta container">
+    <h2 style="margin:0 0 10px">Ready to launch your career?</h2>
+    <p class="muted" style="margin:0 0 18px">Create a profile and start applying to campus drives today.</p>
+    <div style="display:flex;gap:12px;justify-content:center">
+      {% if user.is_authenticated %}
+        <a href="{% url 'dashboard-redirect' %}" class="btn btn-primary">Go to Dashboard</a>
+        <a href="{% url 'dashboard-redirect' %}" class="btn btn-secondary">Open Dashboard</a>
+      {% else %}
+        <a href="{% url 'signup' %}" class="btn btn-primary">Create Your Free Account</a>
+        <a href="{% url 'login' %}" class="btn btn-secondary">Log In</a>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Mobile menu toggle with accessible attributes
+  (function(){
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    menuToggle && menuToggle.addEventListener('click', () => {
+      const open = mobileMenu.classList.toggle('is-open');
+      menuToggle.setAttribute('aria-expanded', open);
+      mobileMenu.setAttribute('aria-hidden', !open);
+    });
+  })();
+
+  // Intersection Observer reveal for .initial-hidden elements
+  (function(){
+    const supports = 'IntersectionObserver' in window;
+    const items = document.querySelectorAll('.initial-hidden');
+    if (!supports || items.length === 0) {
+      items.forEach(i => i.classList.add('is-visible'));
+      return;
+    }
+    const io = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const delay = parseInt(entry.target.getAttribute('data-delay')) || 0;
+          setTimeout(()=> entry.target.classList.add('is-visible'), delay);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {threshold: 0.12});
+    items.forEach(i => io.observe(i));
+  })();
+
+  // Simple accessible carousel (testimonials)
+  (function(){
+    const track = document.getElementById('carousel-track');
+    if (!track) return;
+    const slides = Array.from(track.children);
+    const total = slides.length;
+    const dotsContainer = document.getElementById('dots');
+    const prev = document.getElementById('prev-btn');
+    const next = document.getElementById('next-btn');
+    let index = 0;
+    let timer = null;
+
+    function update() {
+      track.style.transform = `translateX(${-index * 100}%)`;
+      Array.from(dotsContainer.children).forEach((d,i)=> d.classList.toggle('active', i===index));
+    }
+
+    function goto(i){
+      index = (i + total) % total;
+      update();
+    }
+
+    // create dots
+    slides.forEach((_,i)=>{
+      const b = document.createElement('button');
+      b.className = 'dot';
+      b.setAttribute('aria-label', 'Go to slide ' + (i+1));
+      b.addEventListener('click', ()=> { stop(); goto(i); start(); });
+      dotsContainer.appendChild(b);
+    });
+
+    prev && prev.addEventListener('click', ()=> { stop(); goto(index-1); start(); });
+    next && next.addEventListener('click', ()=> { stop(); goto(index+1); start(); });
+
+    function start(){ timer = setInterval(()=> goto(index+1), 5500); }
+    function stop(){ clearInterval(timer); }
+
+    // pause on hover / focus
+    track.addEventListener('mouseenter', stop);
+    track.addEventListener('mouseleave', start);
+    track.addEventListener('focusin', stop);
+    track.addEventListener('focusout', start);
+
+    // init
+    update();
+    start();
+  })();
+</script>
+{% endblock %}

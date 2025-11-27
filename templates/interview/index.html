@@ -1,0 +1,254 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="prep-root">
+
+  <header class="prep-header">
+    <div class="brand">
+      <h1>Interview Prep</h1>
+      <p class="subtitle">Fast. Focused. For students.</p>
+    </div>
+
+    <div class="controls" role="search" aria-label="Search and filters">
+      <form method="get" class="controls-form">
+        <div class="ctrl-row">
+          <div class="input-wrap">
+            <label for="q" class="visually-hidden">Search</label>
+            <input id="q" name="q" type="search" autocomplete="off" placeholder="Search role / keyword (python, GIL...)" value="{{ q|default:''|escape }}">
+            <button type="button" class="btn-clear" title="Clear">✕</button>
+          </div>
+
+          <div class="select-wrap">
+            <label for="category" class="visually-hidden">Category</label>
+            <select id="category" name="category">
+              <option value="">All categories</option>
+              <option value="pyq" {% if category == 'pyq' %}selected{% endif %}>PYQ</option>
+              <option value="important" {% if category == 'important' %}selected{% endif %}>Important</option>
+              <option value="must" {% if category == 'must' %}selected{% endif %}>Must</option>
+              <option value="concept" {% if category == 'concept' %}selected{% endif %}>Concept</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="ctrl-row small">
+          <div class="tag-wrap">
+            <label for="tag" class="visually-hidden">Tag</label>
+            <input id="tag" name="tag" type="text" placeholder="Filter by tag (e.g. django)" value="{{ tag|default:''|escape }}">
+          </div>
+
+          <div class="actions">
+            <button class="btn primary" type="submit">Search</button>
+            <a class="btn ghost" href="{% url 'interview:index' %}">Clear</a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </header>
+
+  <main class="content">
+    {% if questions %}
+      <div class="summary">
+        <div class="count">Showing <strong>{{ page_obj.start_index }}–{{ page_obj.end_index }}</strong> of <strong>{{ page_obj.paginator.count }}</strong></div>
+        <div class="hint">Tap a card for detail · Use filters to refine</div>
+      </div>
+
+      <ul class="list" id="questionList">
+        {% for it in questions %}
+        <li class="item" data-id="{{ it.id }}" tabindex="0" aria-labelledby="q-{{ it.id }}">
+          <div class="item-inner">
+            <div class="left">
+              <div class="avatar" aria-hidden="true">{{ it.role|slice:":1"|upper }}</div>
+            </div>
+            <div class="body">
+              <div class="meta-row">
+                <div class="role">{{ it.role|title }}</div>
+                <div class="badges">
+                  {% if it.difficulty %}<span class="badge diff">{{ it.difficulty|capfirst }}</span>{% endif %}
+                  {% if it.category %}<span class="badge cat">{{ it.category|upper }}</span>{% endif %}
+                </div>
+              </div>
+
+              <h3 id="q-{{ it.id }}" class="q">{{ it.question|truncatechars:180 }}</h3>
+
+              {% if it.answer %}
+              <p class="preview">{{ it.answer|truncatewords:20 }}</p>
+              {% endif %}
+
+              <div class="row bottom">
+                <div class="tags">
+                  {% if it.tag_list %}
+                    {% for t in it.tag_list %}
+                      <span class="tag-chip">{{ t }}</span>
+                    {% endfor %}
+                  {% elif it.tags %}
+                    <span class="tag-chip">{{ it.tags }}</span>
+                  {% endif %}
+                </div>
+
+                <div class="links">
+                  <a href="{% url 'interview:question_detail' it.id %}" class="link">View</a>
+                  <a href="{% url 'interview:question_pdf' it.id %}?download=0" class="link" target="_blank" rel="noopener">PDF</a>
+                  {% if request.user.is_staff %}
+                    <a href="{% url 'interview:question_pdf' it.id %}?answer=1" class="link" target="_blank" rel="noopener">PDF+Ans</a>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+            <div class="chev" aria-hidden="true">›</div>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+
+      <nav class="pager" role="navigation" aria-label="Pagination">
+        {% if page_obj.has_previous %}
+          <a class="pg" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}{% if tag %}tag={{ tag|urlencode }}&{% endif %}page={{ page_obj.previous_page_number }}">← Prev</a>
+        {% endif %}
+        <span class="pg-info">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+          <a class="pg" href="?{% if q %}q={{ q|urlencode }}&{% endif %}{% if category %}category={{ category|urlencode }}&{% endif %}{% if tag %}tag={{ tag|urlencode }}&{% endif %}page={{ page_obj.next_page_number }}">Next →</a>
+        {% endif %}
+      </nav>
+
+    {% else %}
+      <div class="empty">
+        <img src="{% static 'img/empty-illustration.svg' %}" alt="" class="empty-img" aria-hidden="true">
+        <p>No questions found. Try changing filters or add content.</p>
+        <a class="btn ghost" href="{% url 'interview:index' %}">Reset</a>
+      </div>
+    {% endif %}
+  </main>
+</div>
+
+<style>
+/* Mobile-first modern compact UI */
+:root{
+  --bg: #fbfdff;
+  --muted: #6b7280;
+  --accent: #2563eb;
+  --accent-2: #60a5fa;
+  --card: #ffffff;
+  --glass: rgba(255,255,255,0.6);
+  --radius: 12px;
+  --shadow: 0 8px 22px rgba(16,24,40,0.06);
+  --compact-gap: 10px;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+/* root layout */
+.prep-root { background: linear-gradient(180deg,#f7fbff,#fff); min-height:60vh; padding:14px 12px; }
+.prep-header { display:flex; gap:12px; align-items:flex-start; justify-content:space-between; margin-bottom:12px; max-width:900px; margin-left:auto; margin-right:auto; }
+.brand h1 { margin:0; font-size:1.15rem; letter-spacing:-0.2px; }
+.subtitle { margin:2px 0 0; color:var(--muted); font-size:0.9rem; }
+
+/* controls */
+.controls { width:100%; margin-top:6px; }
+.controls-form { display:flex; flex-direction:column; gap:8px; width:100%; max-width:900px; margin:0 auto; }
+
+.ctrl-row { display:flex; gap:8px; align-items:center; }
+.ctrl-row.small { gap:8px; align-items:center; flex-wrap:wrap; }
+
+.input-wrap { position:relative; flex:1 1 200px; }
+.input-wrap input[type="search"] {
+  width:100%;
+  padding:10px 36px 10px 12px;
+  border-radius:10px;
+  border:1px solid rgba(15,23,42,0.06);
+  background:var(--card);
+  font-size:0.95rem;
+}
+.btn-clear { position:absolute; right:6px; top:6px; bottom:6px; border:0; background:transparent; color:var(--muted); cursor:pointer; font-size:0.9rem; }
+
+.select-wrap select, .tag-wrap input, .tag-wrap input[type="text"] {
+  padding:10px; border-radius:10px; border:1px solid rgba(15,23,42,0.06); background:var(--card); font-size:0.95rem;
+}
+.select-wrap { flex:0 0 160px; }
+.tag-wrap { flex:1 1 140px; min-width:120px; }
+
+.actions { display:flex; gap:8px; margin-left:auto; }
+.actions .btn { padding:10px 12px; border-radius:10px; font-weight:700; text-decoration:none; border: none; cursor:pointer; }
+.btn.primary { background:linear-gradient(180deg,var(--accent-2),var(--accent)); color:white; box-shadow:0 8px 20px rgba(37,99,235,0.12); }
+.btn.ghost { background:transparent; border:1px solid rgba(15,23,42,0.06); color:var(--muted); }
+
+/* content area */
+.content { max-width:900px; margin:12px auto 36px; padding:0 2px; }
+
+/* summary */
+.summary { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px; color:var(--muted); font-size:0.92rem; }
+
+/* list */
+.list { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
+.item { background:var(--card); border-radius:12px; padding:10px; border:1px solid rgba(15,23,42,0.04); box-shadow:var(--shadow); display:flex; align-items:flex-start; gap:10px; transition: transform .18s ease, box-shadow .18s ease; cursor:pointer; }
+.item:focus, .item:hover { transform:translateY(-4px); box-shadow:0 14px 40px rgba(16,24,40,0.08); outline:none; }
+.item-inner { display:flex; width:100%; align-items:flex-start; gap:10px; }
+
+/* avatar */
+.avatar { width:44px; height:44px; border-radius:10px; background:linear-gradient(135deg,#eef2ff,#fff); display:flex; align-items:center; justify-content:center; font-weight:700; color:var(--accent); font-size:1.05rem; border:1px solid rgba(37,99,235,0.06); flex-shrink:0; }
+
+/* body */
+.body { flex:1 1 auto; display:flex; flex-direction:column; gap:6px; }
+.meta-row { display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.role { font-weight:700; color:#081229; font-size:0.96rem; }
+.badges { display:flex; gap:6px; align-items:center; }
+.badge { font-size:0.75rem; padding:6px 8px; border-radius:999px; background:#f1f5f9; color:#0b1220; font-weight:700; }
+.badge.cat { background:#eef2ff; color:var(--accent); }
+
+/* question + preview */
+.q { margin:0; font-size:0.98rem; font-weight:700; color:#0b1220; }
+.preview { margin:0; color:#374151; font-size:0.86rem; line-height:1.3; }
+
+/* bottom row */
+.bottom { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:6px; flex-wrap:wrap; }
+.tags { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+.tag-chip { background:#eef6ff; color:var(--accent); padding:6px 8px; border-radius:999px; font-size:0.78rem; font-weight:700; }
+.links { display:flex; gap:8px; align-items:center; }
+.link { color:var(--accent); font-weight:700; font-size:0.9rem; text-decoration:none; }
+.link:hover { text-decoration:underline; }
+
+/* chevron */
+.chev { color: rgba(15,23,42,0.18); font-size:1.3rem; align-self:center; padding-left:6px; }
+
+/* pager */
+.pager { display:flex; justify-content:center; gap:12px; align-items:center; margin-top:12px; color:var(--muted); }
+.pg { padding:8px 10px; border-radius:8px; background:transparent; border:1px solid rgba(15,23,42,0.04); color:var(--accent); text-decoration:none; font-weight:700; }
+.pg-info { font-size:0.9rem; color:var(--muted); }
+
+/* empty */
+.empty { text-align:center; padding:24px; color:var(--muted); }
+
+/* compact adjustments for very small screens */
+@media (max-width:420px) {
+  .avatar { width:40px; height:40px; font-size:0.95rem; }
+  .btn.primary { padding:9px 10px; font-size:0.92rem; }
+  .input-wrap input[type="search"] { font-size:0.92rem; padding:10px 38px 10px 10px; }
+  .q { font-size:0.95rem; }
+  .preview { font-size:0.84rem; }
+}
+</style>
+
+<script>
+// small UX: stagger reveal, clear input, card click -> detail
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.item').forEach((el, idx) => {
+    setTimeout(() => { el.style.opacity = 1; el.style.transform = 'translateY(0)'; }, idx * 40);
+  });
+
+  // clear search
+  const clear = document.querySelector('.btn-clear');
+  const q = document.querySelector('#q');
+  if (clear && q) clear.addEventListener('click', () => { q.value=''; q.focus(); });
+
+  // clickable cards
+  document.querySelectorAll('.item').forEach(item => {
+    item.addEventListener('click', (e) => {
+      if (e.target.closest('a')) return;
+      const id = item.dataset.id;
+      if (!id) return;
+      const url = "{% url 'interview:question_detail' 0 %}".replace('/0/', '/' + id + '/');
+      window.location.href = url;
+    });
+    item.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); item.click(); } });
+  });
+});
+</script>
+{% endblock %}

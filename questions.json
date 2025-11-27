@@ -1,0 +1,29 @@
+[
+  {
+    "role": "Python Dev",
+    "category": "pyq",
+    "question": "What is the GIL?",
+    "answer": "Global Interpreter Lock - a mutex that protects access to Python objects, preventing multiple threads from executing Python bytecodes at once.",
+    "tags": "python,gil,multi-threading",
+    "source": "sample",
+    "difficulty": "medium"
+  },
+  {
+    "role": "Django Dev",
+    "category": "important",
+    "question": "What is a QuerySet?",
+    "answer": "A QuerySet represents a collection of objects from your database. It can be filtered, sliced and evaluated lazily.",
+    "tags": "django,orm,queryset",
+    "source": "sample",
+    "difficulty": "easy"
+  },
+  {
+    "role": "Frontend",
+    "category": "concept",
+    "question": "Explain event delegation.",
+    "answer": "Event delegation is the technique of using a single event listener on a parent element to handle events for multiple child elements.",
+    "tags": "javascript,dom,event",
+    "source": "sample",
+    "difficulty": "easy"
+  }
+]

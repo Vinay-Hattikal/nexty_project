@@ -1,0 +1,13 @@
+<p>Hi {{ student_name }},</p>
+<p>Good news — you have been <strong>shortlisted</strong> for the role: <strong>{{ job_title }}</strong>.</p>
+
+<p><strong>Interview details:</strong><br>
+{{ interview_dt }}<br>
+{% if meeting_link %}Meeting link: <a href="{{ meeting_link }}">{{ meeting_link }}</a><br>{% endif %}
+</p>
+
+{% if message %}
+<p><strong>Message from recruiter:</strong><br>{{ message }}</p>
+{% endif %}
+
+<p>Best,<br>{{ hr_name }}</p>

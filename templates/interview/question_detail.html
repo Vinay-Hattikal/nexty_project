@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<main class="detail-page">
+  <div class="container">
+    <header class="detail-header">
+      <div>
+        <h1 class="title">Question detail</h1>
+        <p class="subtitle">Deep-dive view — read, copy or download this question for offline practice.</p>
+      </div>
+      <div class="header-actions">
+        <a href="{% url 'interview:index' %}?{% if request.GET.q %}q={{ request.GET.q|urlencode }}&{% endif %}{% if request.GET.category %}category={{ request.GET.category|urlencode }}&{% endif %}{% if request.GET.tag %}tag={{ request.GET.tag|urlencode }}&{% endif %}page={{ request.GET.page|default:'1' }}" class="btn btn-ghost" aria-label="Back to list">← Back</a>
+      </div>
+    </header>
+
+    <article class="question-detail-card" role="article" aria-labelledby="question-title">
+      <div class="card-top">
+        <div class="role">{{ question.role|title }}</div>
+        <div class="meta">
+          <span class="cat">{{ question.get_category_display }}</span>
+          <span class="dot">•</span>
+          <span class="difficulty">{{ question.difficulty|default:"N/A"|capfirst }}</span>
+        </div>
+      </div>
+
+      <h2 id="question-title" class="question-text">{{ question.question|linebreaksbr }}</h2>
+
+      <div class="question-controls">
+        <button id="copyBtn" class="btn btn-outline" title="Copy question to clipboard">Copy</button>
+
+        {% if request.user.is_staff %}
+          <button id="toggleAnswer" class="btn btn-primary" data-visible="1">Show Answer</button>
+        {% else %}
+          <button id="toggleAnswer" class="btn btn-primary" data-visible="0">Show Answer</button>
+        {% endif %}
+
+        {% if request.user.is_staff %}
+          <a href="{% url 'interview:question_pdf' question.id %}?answer=1" class="btn btn-primary" target="_blank" rel="noopener">PDF with Answer</a>
+        {% endif %}
+      </div>
+
+      <div id="answerBlock" class="answer-block{% if not request.user.is_staff %} collapsed{% endif %}">
+        {% if question.answer %}
+          <h3>Answer / Notes</h3>
+          <div class="answer-content">{{ question.answer|linebreaksbr }}</div>
+        {% else %}
+          <div class="no-answer">No answer available for this question.</div>
+        {% endif %}
+      </div>
+
+      <footer class="card-footer">
+        <div class="tags">
+          {% if question.tag_list %}
+            {% for t in question.tag_list %}
+              <span class="tag-chip">{{ t }}</span>
+            {% endfor %}
+          {% elif question.tags %}
+            <span class="tag-chip">{{ question.tags }}</span>
+          {% endif %}
+        </div>
+
+        <div class="meta-right">
+          {% if question.source %}
+            <div class="meta-small">Source: <strong>{{ question.source }}</strong></div>
+          {% endif %}
+          {% if question.submitted_by %}
+            <div class="meta-small">Submitted by: <strong>{{ question.submitted_by.get_full_name|default:question.submitted_by.username }}</strong></div>
+          {% endif %}
+        </div>
+      </footer>
+    </article>
+  </div>
+</main>
+
+<style>
+:root{
+  --bg: #f6f8fb;
+  --card: #fff;
+  --muted: #6b7280;
+  --accent: #5b8def;
+  --accent-600: #3c7be0;
+  --radius: 12px;
+  --shadow-sm: 0 6px 18px rgba(59,123,239,0.06);
+  --shadow-md: 0 12px 30px rgba(15,23,42,0.06);
+  --ease: cubic-bezier(.2,.9,.3,1);
+}
+
+.detail-page{ padding:28px; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color:#0f172a; background: linear-gradient(180deg,#fbfdff,#fff); min-height:70vh; }
+.container{ max-width:1000px; margin:0 auto; }
+
+.detail-header{ display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:18px; }
+.title{ margin:0; font-size:1.5rem; font-weight:700; }
+.subtitle{ margin:6px 0 0 0; color:var(--muted); font-size:0.95rem; }
+.header-actions .btn{ margin-left:8px; }
+
+.question-detail-card{
+  background:var(--card);
+  border-radius: var(--radius);
+  padding:18px;
+  border:1px solid rgba(15,23,42,0.04);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow .2s var(--ease), transform .2s var(--ease);
+}
+.question-detail-card:focus-within, .question-detail-card:hover{
+  box-shadow: var(--shadow-md);
+  transform: translateY(-4px);
+}
+
+.card-top{ display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.role{ font-weight:700; color:var(--accent-600); background: #f1f7ff; padding:6px 10px; border-radius:10px; }
+.meta{ color:var(--muted); font-size:0.95rem; display:flex; gap:8px; align-items:center; }
+
+.question-text{ margin:0 0 12px 0; line-height:1.4; font-size:1.05rem; font-weight:600; color:#081229; }
+
+.question-controls{ display:flex; gap:8px; align-items:center; margin-bottom:12px; flex-wrap:wrap; }
+.btn{ padding:8px 12px; border-radius:10px; border:1px solid transparent; font-weight:600; cursor:pointer; text-decoration:none; display:inline-flex; gap:8px; align-items:center; }
+.btn-primary{ background:linear-gradient(180deg,var(--accent),var(--accent-600)); color:#fff; box-shadow:0 8px 20px rgba(59,123,239,0.12); border-color:transparent; }
+.btn-ghost{ background:transparent; border:1px solid rgba(15,23,42,0.06); color:var(--muted); }
+.btn-outline{ background:transparent; border:1px solid rgba(15,23,42,0.06); color:#0f172a; }
+
+.answer-block{ margin-top:10px; padding:12px; border-radius:10px; background:#fbfdff; border:1px solid rgba(15,23,42,0.03); transition: max-height .35s var(--ease), opacity .35s var(--ease); overflow:hidden; }
+.answer-block.collapsed{ max-height:0; opacity:0; padding-top:0; padding-bottom:0; }
+.answer-block:not(.collapsed){ max-height:2000px; opacity:1; }
+.answer-content{ font-size:0.98rem; color:#0f172a; }
+
+.card-footer{ display:flex; justify-content:space-between; align-items:center; margin-top:14px; gap:12px; flex-wrap:wrap; }
+.tags{ display:flex; gap:8px; flex-wrap:wrap; }
+.tag-chip{ background:#f1f4ff; color:var(--accent-600); padding:6px 8px; border-radius:999px; font-size:0.85rem; }
+.meta-right{ color:var(--muted); font-size:0.9rem; display:flex; flex-direction:column; gap:4px; }
+
+.no-answer{ color:var(--muted); font-style:italic; }
+@media (max-width:720px){ .detail-header{ flex-direction:column; align-items:flex-start; gap:8px; } .question-controls{ width:100%; } }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const toggleBtn = document.getElementById('toggleAnswer');
+  const answerBlock = document.getElementById('answerBlock');
+  const copyBtn = document.getElementById('copyBtn');
+
+  if (toggleBtn && answerBlock) {
+    toggleBtn.addEventListener('click', function() {
+      const isCollapsed = answerBlock.classList.contains('collapsed');
+      if (isCollapsed) {
+        answerBlock.classList.remove('collapsed');
+        toggleBtn.textContent = 'Hide Answer';
+        toggleBtn.setAttribute('data-visible', '1');
+      } else {
+        answerBlock.classList.add('collapsed');
+        toggleBtn.textContent = 'Show Answer';
+        toggleBtn.setAttribute('data-visible', '0');
+      }
+    });
+  }
+
+  if (copyBtn) {
+    copyBtn.addEventListener('click', async function() {
+      const qEl = document.querySelector('.question-text');
+      if (!qEl) return;
+      const text = qEl.innerText || qEl.textContent || '';
+      try {
+        await navigator.clipboard.writeText(text.trim());
+        const orig = copyBtn.innerHTML;
+        copyBtn.innerText = 'Copied';
+        setTimeout(() => copyBtn.innerHTML = orig, 1200);
+      } catch (e) {
+        const ta = document.createElement('textarea');
+        ta.value = text.trim();
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); copyBtn.innerText = 'Copied'; } catch {}
+        document.body.removeChild(ta);
+        setTimeout(() => copyBtn.innerText = 'Copy', 1200);
+      }
+    });
+  }
+
+  if (toggleBtn && answerBlock && answerBlock.classList.contains('collapsed')) {
+    toggleBtn.textContent = 'Show Answer';
+    toggleBtn.setAttribute('data-visible', '0');
+  } else if (toggleBtn) {
+    toggleBtn.textContent = 'Hide Answer';
+    toggleBtn.setAttribute('data-visible', '1');
+  }
+});
+</script>
+{% endblock %}

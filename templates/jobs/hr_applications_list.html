@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Applications — {{ job.title }}{% endblock %}
+{% block content %}
+<style>
+  :root {
+    --primary: #0b66c3;
+    --accent: #06b6d4;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --bg: #f9fafb;
+    --card: #ffffff;
+    --radius: 10px;
+    --shadow: 0 6px 18px rgba(0,0,0,0.06);
+    --border: #e5e7eb;
+    --success: #16a34a;
+    --pending: #f59e0b;
+    --rejected: #dc2626;
+  }
+
+  body {
+    background: var(--bg);
+    font-family: Inter, system-ui, sans-serif;
+  }
+
+  main {
+    max-width: 900px;
+    margin: 30px auto;
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: var(--shadow);
+    color: var(--text);
+  }
+
+  h2 {
+    font-size: 1.6rem;
+    color: var(--primary);
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .back-link {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .back-link:hover {
+    text-decoration: underline;
+  }
+
+  .applications-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 1.5rem;
+    display: grid;
+    gap: 1rem;
+  }
+
+  .application-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .application-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+  }
+
+  .applicant-name {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+  }
+
+  .application-meta {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-bottom: 0.75rem;
+  }
+
+  .status {
+    font-weight: 600;
+  }
+
+  .status.approved { color: var(--success); }
+  .status.pending { color: var(--pending); }
+  .status.rejected { color: var(--rejected); }
+
+  .btn-view {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 8px 14px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+  }
+
+  .btn-view:hover {
+    background: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 640px) {
+    main { padding: 20px; }
+    h2 { font-size: 1.4rem; }
+    .application-card { padding: 12px; }
+  }
+</style>
+
+<main>
+  <h2>Applications for: {{ job.title }}</h2>
+  <p><a href="{% url 'hr_dashboard' %}" class="back-link">← Back to HR Dashboard</a></p>
+
+  {% if applications %}
+    <ul class="applications-list">
+      {% for a in applications %}
+        <li class="application-card">
+          <div class="applicant-name">
+            {{ a.student.get_full_name|default:a.student.username }}
+          </div>
+          <div class="application-meta">
+            Applied: {{ a.applied_at|date:"Y-m-d H:i" }} &nbsp;•&nbsp;
+            Status:
+            <span class="status
+              {% if a.get_status_display == 'Shortlisted' %}approved
+              {% elif a.get_status_display == 'Pending' %}pending
+              {% elif a.get_status_display == 'Rejected' %}rejected
+              {% endif %}
+            ">
+              {{ a.get_status_display }}
+            </span>
+          </div>
+          <a href="{% url 'hr_application_detail' a.id %}">
+            <button class="btn-view">View Application</button>
+          </a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="muted">No applications yet for this job.</p>
+  {% endif %}
+</main>
+{% endblock %}

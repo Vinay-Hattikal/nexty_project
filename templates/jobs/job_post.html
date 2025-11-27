@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{% if job %}Edit Job — NextCareer{% else %}Post a Job — Nexty{% endif %}{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --primary: #0b66c3;
+    --accent: #06b6d4;
+    --bg: #f9fafb;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --radius: 10px;
+    --shadow: 0 6px 18px rgba(0,0,0,0.06);
+    --text: #1f2937;
+    --muted: #6b7280;
+    --danger: #dc2626;
+  }
+
+  body {
+    background: var(--bg);
+    font-family: Inter, system-ui, sans-serif;
+  }
+
+  main {
+    max-width: 700px;
+    margin: 40px auto;
+    background: var(--card);
+    padding: 32px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  h2 {
+    font-size: 1.7rem;
+    color: var(--primary);
+    text-align: center;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  table {
+    width: 100%;
+    border-spacing: 0 10px;
+  }
+
+  table th {
+    text-align: left;
+    color: var(--text);
+    font-weight: 600;
+    padding-bottom: 6px;
+    font-size: 0.95rem;
+  }
+
+  table td {
+    padding-bottom: 12px;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="date"],
+  input[type="email"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.95rem;
+    transition: border-color 0.3s, box-shadow 0.2s;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    border-color: var(--primary);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(11, 102, 195, 0.15);
+  }
+
+  button {
+    border: none;
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: 1rem;
+    font-weight: 600;
+    background: var(--primary);
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    margin-top: 8px;
+  }
+
+  button:hover {
+    background: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  a.back-link {
+    display: inline-block;
+    text-align: center;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 600;
+    margin-top: 16px;
+    transition: color 0.2s;
+  }
+
+  a.back-link:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+
+  .errorlist {
+    list-style: none;
+    padding: 8px 12px;
+    margin: 8px 0;
+    background: #fdecea;
+    color: var(--danger);
+    border: 1px solid #fca5a5;
+    border-radius: var(--radius);
+  }
+
+  @media (max-width: 640px) {
+    main {
+      margin: 20px 16px;
+      padding: 24px;
+    }
+  }
+</style>
+
+<main>
+  <h2>{% if job %}Edit Job{% else %}Post a Job{% endif %}</h2>
+
+  <form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <table>
+      {{ form.as_table }}
+    </table>
+    <button type="submit">{% if job %}Update{% else %}Post{% endif %}</button>
+  </form>
+
+  <a href="{% url 'hr_dashboard' %}" class="back-link">← Back to Dashboard</a>
+</main>
+{% endblock %}

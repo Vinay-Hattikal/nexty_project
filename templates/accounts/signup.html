@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Sign Up — Nexty{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --primary: #0b66c3;
+    --accent: #06b6d4;
+    --danger: #dc2626;
+    --bg: #f3f4f6;
+    --card: #ffffff;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --radius: 12px;
+    --shadow: 0 8px 24px rgba(0,0,0,0.08);
+  }
+
+  body {
+    background: var(--bg);
+    font-family: Inter, system-ui, sans-serif;
+  }
+
+  .signup-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 90vh;
+    padding: 20px;
+  }
+
+  .signup-card {
+    background: var(--card);
+    padding: 40px 36px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    width: 100%;
+    max-width: 500px;
+  }
+
+  h2 {
+    text-align: center;
+    font-size: 1.8rem;
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  table {
+    width: 100%;
+    border-spacing: 0 14px;
+  }
+
+  label {
+    font-weight: 600;
+    color: var(--text);
+    display: inline-block;
+    margin-bottom: 6px;
+  }
+
+  input[type="text"],
+  input[type="password"],
+  input[type="email"],
+  select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    border: 1px solid #d1d5db;
+    font-size: 0.95rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(11, 102, 195, 0.15);
+  }
+
+  .helptext {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-top: 3px;
+  }
+
+  ul.errorlist {
+    background: #fdecea;
+    color: var(--danger);
+    border: 1px solid #fca5a5;
+    padding: 8px 10px;
+    border-radius: var(--radius);
+    list-style: none;
+    margin: 4px 0 0;
+    font-size: 0.9rem;
+  }
+
+  button {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 12px 16px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+  }
+
+  button:hover {
+    background: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  p.login {
+    text-align: center;
+    margin-top: 1rem;
+    color: var(--muted);
+  }
+
+  p.login a {
+    color: var(--primary);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  p.login a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 480px) {
+    .signup-card {
+      padding: 28px 20px;
+    }
+  }
+</style>
+
+<div class="signup-container">
+  <div class="signup-card">
+    <h2>Create Account</h2>
+
+    <form method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      <table>
+        {% for field in form %}
+          <tr>
+            <td style="display:block; margin-bottom:10px;">
+              {{ field.label_tag }}
+              {{ field }}
+              {% if field.help_text %}
+                <small class="helptext">{{ field.help_text }}</small>
+              {% endif %}
+              {{ field.errors }}
+            </td>
+          </tr>
+        {% endfor %}
+      </table>
+      <button type="submit">Sign Up</button>
+    </form>
+
+    <p class="login">
+      Already have an account?
+      <a href="{% url 'login' %}">Log in</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

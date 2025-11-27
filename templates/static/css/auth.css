@@ -1,0 +1,8 @@
+/* auth.css — login & signup */
+
+.auth-card{max-width:520px;margin:18px auto;padding:18px;border-radius:12px;background:var(--panel);box-shadow:var(--shadow-sm)}
+.auth-card h2{color:var(--brand-1);margin-bottom:12px}
+.form-table th{padding:8px 12px;color:var(--muted);font-weight:700}
+.form-table td{padding:8px 12px}
+.errorlist li{color:#c00;font-size:0.95rem}
+.form-note{font-size:0.92rem;color:var(--muted);margin-top:6px}

@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Student Dashboard — Nexty{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --primary: #0b66c3;
+    --accent: #06b6d4;
+    --bg: #f9fafb;
+    --card: #ffffff;
+    --border: #e5e7eb;
+    --text: #1f2937;
+    --muted: #6b7280;
+    --radius: 14px;
+    --shadow: 0 8px 24px rgba(0,0,0,0.05);
+  }
+
+  body {
+    background: var(--bg);
+    font-family: Inter, system-ui, sans-serif;
+  }
+
+  .dashboard-container {
+    max-width: 1100px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+
+  .welcome-card {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: #fff;
+    border-radius: var(--radius);
+    padding: 28px 36px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeIn 0.7s ease-in;
+  }
+
+  .welcome-card h2 {
+    font-size: 1.9rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+
+  .welcome-card p {
+    color: #e0f2fe;
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 24px;
+  }
+
+  .feature-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 20px;
+    text-align: center;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.04);
+    transition: all 0.3s ease;
+    animation: slideUp 0.5s ease-out forwards;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 22px rgba(0,0,0,0.07);
+  }
+
+  .feature-card h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-top: 12px;
+    margin-bottom: 8px;
+  }
+
+  .feature-card p {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-bottom: 18px;
+  }
+
+  .feature-card a button {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 10px 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+
+  .feature-card a button:hover {
+    background: var(--accent);
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 600px) {
+    .welcome-card {
+      padding: 20px;
+    }
+  }
+</style>
+
+<div class="dashboard-container">
+  <div class="welcome-card">
+    <h2>Welcome, {{ user.first_name|default:user.username }} 👋</h2>
+    <p>Your personalized student career dashboard — manage resumes, browse jobs, and prepare for success.</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feature-card">
+      <h3>Resume Builder</h3>
+      <p>Create a professional resume in minutes with customizable templates.</p>
+      <a href="{% url 'create_resume' %}"><button>Build Resume</button></a>
+    </div>
+
+    <div class="feature-card">
+      <h3>My Resumes</h3>
+      <p>View, edit, and download your saved resumes anytime.</p>
+      <a href="{% url 'resume_list' %}"><button>View / Download</button></a>
+    </div>
+
+    <div class="feature-card">
+      <h3>Job Opportunities</h3>
+      <p>Explore the latest openings from top recruiters and apply directly.</p>
+      <a href="{% url 'job_list' %}"><button>Browse Jobs</button></a>
+    </div>
+
+    <div class="feature-card">
+      <h3>My Applications</h3>
+      <p>Track your job applications, ATS scores, and recruiter responses.</p>
+      <a href="{% url 'student_applications' %}"><button>View Applications</button></a>
+    </div>
+
+    <div class="feature-card">
+      <h3>Interview Prep</h3>
+      <p>Sharpen your interview skills with mock tests and curated questions.</p>
+      <a href="{% url 'interview:index' %}"><button>Start Preparing</button></a>
+    </div>
+  </div>
+</div>
+{% endblock %}

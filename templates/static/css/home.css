@@ -1,0 +1,25 @@
+/* home.css — hero, features, carousel */
+
+/* hero layout */
+.hero { padding:44px 0; display:grid; gap:28px }
+.hero .left { max-width:56ch }
+.hero .actions{display:flex;gap:12px;flex-wrap:wrap}
+
+/* decorative blob and preview */
+.preview-blob{position:absolute;right:-40px;top:-40px;width:280px;height:280px;border-radius:50%;background:linear-gradient(135deg,#dbeafe,#c7f9ff);filter:blur(40px);opacity:0.75;transform:rotate(12deg)}
+.preview-card img{width:100%;border-radius:8px;display:block;object-fit:cover}
+.preview-mini{position:relative;margin-top:-28px;margin-left:8px;width:fit-content;background:#fff;padding:10px;border-radius:10px;box-shadow:var(--shadow-sm)}
+
+/* features grid */
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.feature-card{padding:18px;border-radius:12px;background:linear-gradient(180deg,#fff,#fbfdff);transition:transform .18s,box-shadow .18s}
+.feature-card:hover{transform:translateY(-6px);box-shadow:var(--shadow-sm)}
+
+/* how it works - timeline */
+.timeline { display:grid; grid-template-columns:repeat(3,1fr); gap:16px }
+.timeline .step{ text-align:center; padding:16px }
+
+/* testimonials */
+.testimonials-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.testimonial{padding:16px;border-radius:10px}
+.carousel-controls{display:flex;gap:8px;justify-content:center;margin-top:12px}

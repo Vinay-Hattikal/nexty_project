@@ -1,0 +1,11 @@
+<p>Hi {{ student_name }},</p>
+<p>Thank you for applying for <strong>{{ job_title }}</strong>.</p>
+
+<p>We regret to inform you that your application has not been progressed further at this time.</p>
+
+{% if message %}
+<p><strong>Reason:</strong> {{ message }}</p>
+{% endif %}
+
+<p>We wish you the best in your job search.</p>
+<p>Regards,<br>{{ hr_name }}</p>
